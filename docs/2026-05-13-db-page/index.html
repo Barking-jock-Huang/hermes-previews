@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>愛吠的狗 - CSM 總戰情儀表板</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0.2; } }
+        /* 隱藏滾動條 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 診斷面板滑動動畫 */
+        .panel-slide-enter { transform: translateX(100%); }
+        .panel-slide-active { transform: translateX(0); transition: transform 0.3s ease-out; }
+        .panel-slide-leave { transform: translateX(100%); transition: transform 0.3s ease-in; }
+        /* 頁籤切換動畫 */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex overflow-hidden">
+
+    <!-- 左側導覽列 (側邊欄) -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-xl z-20 hidden md:flex">
+        <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#facc15" viewBox="0 0 256 256"><path d="M84,104a28,28,0,1,1,28-28A28,28,0,0,1,84,104Zm44,16a28,28,0,1,0-28-28A28,28,0,0,0,128,120Zm44-16a28,28,0,1,0-28-28A28,28,0,0,0,172,104Zm19.06,37.37a44,44,0,0,0-54.89-20L128,124.28l-8.17-2.87a44,44,0,0,0-54.89,20A60.36,60.36,0,0,0,56.8,176c11.06,28.53,42.54,48,71.2,48s60.14-19.47,71.2-48A60.36,60.36,0,0,0,191.06,141.37Z"></path></svg>
+            <div>
+                <h1 class="text-lg font-bold text-white tracking-wider leading-tight">愛吠的狗</h1>
+                <span class="text-xs text-slate-500 font-medium">CSM 維運中心 v3.5</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-2" id="navMenu">
+            <button onclick="switchTab('tab-overview')" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium shadow-md transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
+                客戶大盤總覽
+            </button>
+            <button onclick="switchTab('tab-intent')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,80,152Z"></path></svg>
+                對話與意圖分析
+            </button>
+            <button onclick="switchTab('tab-kb')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H176V32a24,24,0,0,0-48,0v8H88a8,8,0,0,0,0,16h40V40a8,8,0,0,1,16,0V56h40V208H88V120a8,8,0,0,0-16,0v96a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V48A8,8,0,0,0,216,40ZM40,96H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm32,32H40a8,8,0,0,0,0,16H72a8,8,0,0,0,0-16Zm-32,48H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Z"></path></svg>
+                知識庫 (KB) 管理
+            </button>
+            <button onclick="switchTab('tab-device')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM80,32h96a8,8,0,0,1,8,8v16H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8V72H184V216A8,8,0,0,1,176,224ZM128,176a12,12,0,1,0,12,12A12,12,0,0,0,128,176Z"></path></svg>
+                展機與硬體狀態
+            </button>
+        </nav>
+
+        <div class="p-6 border-t border-slate-800">
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between text-xs text-slate-400">
+                    <span>API 服務負載</span>
+                    <span class="text-emerald-400">24%</span>
+                </div>
+                <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-emerald-500 h-full w-1/4"></div>
+                </div>
+                <div class="flex items-center gap-2 text-xs mt-2 text-slate-300">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500 blink"></div>
+                    WatchDog 守護程式連線中
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 右側主內容區 -->
+    <main class="flex-1 flex flex-col min-w-0 relative">
+        
+        <!-- 共用頂部資訊列 -->
+        <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center shrink-0 z-10">
+            <h2 id="pageTitle" class="text-2xl font-black text-slate-800">客戶大盤總覽 <span class="text-sm font-medium text-slate-400 ml-2">本月健康度與趨勢追蹤</span></h2>
+            <div class="flex items-center gap-4">
+                <div class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md text-sm flex items-center gap-2 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path></svg>
+                    <span id="currentTime">載入中...</span>
+                </div>
+                <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-sm font-bold border-2 border-slate-700 shadow-inner cursor-pointer text-white">
+                    優
+                </div>
+            </div>
+        </header>
+
+        <!-- ==================== 頁籤 1：客戶大盤總覽 ==================== -->
+        <section id="tab-overview" class="tab-content active flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+            
+            <!-- 大盤狀態統計列 -->
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 font-bold mb-1">運營中專案總數</p>
+                        <h3 class="text-2xl font-black text-slate-800">5 <span class="text-sm font-normal text-slate-500">個</span></h3>
+                    </div>
+                    <div class="p-3 bg-slate-100 rounded-lg text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg></div>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-emerald-700 font-bold mb-1">健康運作中</p>
+                        <h3 class="text-2xl font-black text-emerald-900">3 <span class="text-sm font-normal text-emerald-700">間</span></h3>
+                    </div>
+                    <div class="p-3 bg-emerald-100 rounded-lg text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg></div>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl shadow-sm border border-amber-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-amber-700 font-bold mb-1">需觀察 (老化/低活)</p>
+                        <h3 class="text-2xl font-black text-amber-900">1 <span class="text-sm font-normal text-amber-700">間</span></h3>
+                    </div>
+                    <div class="p-3 bg-amber-100 rounded-lg text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"></path></svg></div>
+                </div>
+                <div class="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-red-700 font-bold mb-1">異常斷線中</p>
+                        <h3 class="text-2xl font-black text-red-900 blink">1 <span class="text-sm font-normal text-red-700">間</span></h3>
+                    </div>
+                    <div class="p-3 bg-red-100 rounded-lg text-red-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM120,104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,88a12,12,0,1,1,12-12A12,12,0,0,1,128,192Z"></path></svg></div>
+                </div>
+            </div>
+
+            <!-- 卡片網格區 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6 pb-6">
+                
+                <!-- 客戶卡片 1：異常斷線/暴跌 (CSM維運) -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-slate-300 flex flex-col overflow-hidden relative">
+                    <!-- 警告標籤 (如果有) -->
+                    <div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1 shadow-md z-10 blink">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V158a24,24,0,0,1,0-44v-6a8,8,0,0,1,16,0v8h8a8,8,0,0,1,0,16h-8v26a8,8,0,0,0,8,8h8a8,8,0,0,1,0,16Z"></path></svg>
+                        斷線告警
+                    </div>
+                    
+                    <!-- 卡片標頭 -->
+                    <div class="p-5 border-b border-slate-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-blue-100 text-blue-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-blue-200">CSM 維運中</span>
+                            <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">實體機器人展機</span>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800 truncate">C 百貨 1F 導覽機器人</h3>
+                        <p class="text-xs text-slate-400 mt-1">AI AMAZE (Windows 端)</p>
+                    </div>
+
+                    <!-- 股市風格趨勢數據 -->
+                    <div class="p-5 flex-1 flex flex-col gap-4">
+                        <!-- 數據 1: 互動量大盤 -->
+                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 relative overflow-hidden">
+                            <div class="flex justify-between items-end relative z-10">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天互動總量</p>
+                                    <div class="flex items-baseline gap-2">
+                                        <h4 class="text-3xl font-black text-slate-800">1,245</h4>
+                                        <span class="text-sm font-bold text-red-500 flex items-center">
+                                            ▼ 45.2% <span class="text-[10px] text-slate-400 font-normal ml-1">(較前30日)</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 背景 Sparkline -->
+                            <div class="absolute bottom-0 left-0 w-full h-12 opacity-80 pointer-events-none">
+                                <canvas id="sparkTrendC"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- 數據 2: 其他指標 -->
+                        <div class="flex gap-4">
+                            <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                <p class="text-[10px] font-bold text-slate-500 mb-1">知識庫更新狀態</p>
+                                <p class="text-lg font-bold text-red-600">65 天未更新</p>
+                            </div>
+                            <div class="flex-1 bg-red-50 rounded-lg p-3 border border-red-100">
+                                <p class="text-[10px] font-bold text-red-800 mb-1">硬體連線狀態</p>
+                                <p class="text-sm font-bold text-red-600">無網路心跳 (>2hr)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 動作區 -->
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex gap-2">
+                        <button onclick="openDiagnostic('client-c')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center justify-center gap-2">
+                            開啟維運排障診斷
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 客戶卡片 2：健康爆發成長 (PM導入中) -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-emerald-500 flex flex-col overflow-hidden relative">
+                    <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg shadow-md z-10">
+                        高成長動能
+                    </div>
+                    
+                    <div class="p-5 border-b border-slate-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-purple-100 text-purple-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-purple-200">PM 導入中 (月收)</span>
+                            <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">SaaS 網頁版</span>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800 truncate">B 科技金控內部會議室</h3>
+                        <p class="text-xs text-slate-400 mt-1">SecureMeet (會議摘要與翻譯)</p>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col gap-4">
+                        <div class="bg-emerald-50/30 rounded-lg p-4 border border-emerald-100 relative overflow-hidden">
+                            <div class="flex justify-between items-end relative z-10">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天生成會議摘要數</p>
+                                    <div class="flex items-baseline gap-2">
+                                        <h4 class="text-3xl font-black text-slate-800">428</h4>
+                                        <span class="text-sm font-bold text-emerald-600 flex items-center">
+                                            ▲ 124.5% <span class="text-[10px] text-slate-400 font-normal ml-1">(較前30日)</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full h-12 opacity-80 pointer-events-none">
+                                <canvas id="sparkTrendB"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                <p class="text-[10px] font-bold text-slate-500 mb-1">語者辨識註冊數</p>
+                                <div class="flex items-baseline gap-1">
+                                    <p class="text-lg font-bold text-slate-800">145</p>
+                                    <span class="text-[10px] text-emerald-600 font-bold">▲ 12</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                                <p class="text-[10px] font-bold text-slate-500 mb-1">Prompt 模板修改</p>
+                                <p class="text-sm font-bold text-slate-800 mt-1">高活躍 (2天前)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex gap-2">
+                        <button class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg text-sm font-bold shadow-sm transition">
+                            檢視用量與 Token 成本
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 客戶卡片 3：停滯需觀察 (POC) -->
+                <div class="bg-white rounded-xl shadow-md border-t-4 border-amber-400 flex flex-col overflow-hidden relative">
+                    <div class="p-5 border-b border-slate-100">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="bg-amber-100 text-amber-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-amber-200">POC 概念驗證</span>
+                            <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">Line/Web 跨平台</span>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800 truncate">A 連鎖餐飲品牌客服</h3>
+                        <p class="text-xs text-slate-400 mt-1">AI AMAZE (跨平台文字客服)</p>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col gap-4">
+                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 relative overflow-hidden">
+                            <div class="flex justify-between items-end relative z-10">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天互動總句數</p>
+                                    <div class="flex items-baseline gap-2">
+                                        <h4 class="text-3xl font-black text-slate-800">18,500</h4>
+                                        <span class="text-sm font-bold text-slate-500 flex items-center">
+                                            ▼ 2.1% <span class="text-[10px] text-slate-400 font-normal ml-1">(持平)</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-0 left-0 w-full h-12 opacity-80 pointer-events-none">
+                                <canvas id="sparkTrendA"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="flex-1 bg-amber-50/50 rounded-lg p-3 border border-amber-100">
+                                <p class="text-[10px] font-bold text-amber-700 mb-1">兜底回答率 (Fallback)</p>
+                                <div class="flex items-baseline gap-1">
+                                    <p class="text-lg font-bold text-amber-800">15.4%</p>
+                                    <span class="text-[10px] text-red-500 font-bold">▲ 3.2% (惡化)</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 bg-amber-50/50 rounded-lg p-3 border border-amber-100">
+                                <p class="text-[10px] font-bold text-amber-700 mb-1">知識庫更新</p>
+                                <p class="text-sm font-bold text-red-600 mt-1">120 天未更新</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex gap-2">
+                        <button onclick="switchTab('tab-intent')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg text-sm font-bold shadow-sm transition">
+                            查看意圖建議擴充題庫
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ==================== 頁籤 2：對話與意圖分析 ==================== -->
+        <section id="tab-intent" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#3b82f6" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,80,152Z"></path></svg>
+                        熱門意圖分佈 (Top Intents)
+                    </h3>
+                    <select class="border border-slate-300 rounded px-3 py-1 text-sm bg-slate-50 font-bold"><option>A 連鎖餐飲品牌 (POC)</option><option>C 百貨機器人 (CSM維運)</option></select>
+                </div>
+                <div class="relative h-64 w-full"><canvas id="intentChart"></canvas></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ef4444" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V158a24,24,0,0,1,0-44v-6a8,8,0,0,1,16,0v8h8a8,8,0,0,1,0,16h-8v26a8,8,0,0,0,8,8h8a8,8,0,0,1,0,16Z"></path></svg>
+                    高頻無效回答 (兜底回覆清單)
+                </h3>
+                <p class="text-sm text-slate-500 mb-4">以下是使用者提問，但 AI 觸發了「我不知道」預設回覆的內容。請建議客戶擴充至知識庫。</p>
+                <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-sm">
+                                <th class="py-3 px-4 font-bold border-b border-slate-200">使用者原始提問 (User Prompt)</th>
+                                <th class="py-3 px-4 font-bold border-b border-slate-200">發生次數</th>
+                                <th class="py-3 px-4 font-bold border-b border-slate-200">建議動作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                                <td class="py-3 px-4 text-slate-800 font-medium">「請問母親節套餐有附素食選擇嗎？」</td>
+                                <td class="py-3 px-4 text-slate-600 font-bold">45 次</td>
+                                <td class="py-3 px-4"><button class="text-blue-600 hover:underline font-bold text-xs">加入知識庫</button></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                                <td class="py-3 px-4 text-slate-800 font-medium">「你們有跟 Ubereats 合作嗎？」</td>
+                                <td class="py-3 px-4 text-slate-600 font-bold">32 次</td>
+                                <td class="py-3 px-4"><button class="text-blue-600 hover:underline font-bold text-xs">加入知識庫</button></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="py-3 px-4 text-slate-800 font-medium">「兒童椅夠不夠？」</td>
+                                <td class="py-3 px-4 text-slate-600 font-bold">18 次</td>
+                                <td class="py-3 px-4"><button class="text-blue-600 hover:underline font-bold text-xs">加入知識庫</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 頁籤 3：KB 管理 ==================== -->
+        <section id="tab-kb" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#475569" viewBox="0 0 256 256"><path d="M216,40H176V32a24,24,0,0,0-48,0v8H88a8,8,0,0,0,0,16h40V40a8,8,0,0,1,16,0V56h40V208H88V120a8,8,0,0,0-16,0v96a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V48A8,8,0,0,0,216,40ZM40,96H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm32,32H40a8,8,0,0,0,0,16H72a8,8,0,0,0,0-16Zm-32,48H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Z"></path></svg>
+                        全客戶知識庫 (KB) 健康度
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-sm">
+                                <th class="py-3 px-4 font-bold border-b border-slate-200">專案階段 / 客戶名稱</th>
+                                <th class="py-3 px-4 font-bold border-b border-slate-200">總 FAQ 數量</th>
+                                <th class="py-3 px-4 font-bold border-b border-slate-200">老化題數 (>90天未編輯)</th>
+                                <th class="py-3 px-4 font-bold border-b border-slate-200">最後登入維護日</th>
+                                <th class="py-3 px-4 font-bold border-b border-slate-200">管理動作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr class="hover:bg-slate-50 border-b border-slate-100">
+                                <td class="py-3 px-4">
+                                    <p class="font-bold text-slate-800">B 科技金控內部</p>
+                                    <p class="text-[10px] text-purple-600 font-bold bg-purple-50 px-1.5 py-0.5 rounded w-max mt-1">PM 導入中</p>
+                                </td>
+                                <td class="py-3 px-4 text-slate-600 font-medium">350 題</td>
+                                <td class="py-3 px-4 text-emerald-600 font-bold">0 題 (優良)</td>
+                                <td class="py-3 px-4 text-slate-600">2024-05-18</td>
+                                <td class="py-3 px-4"><button class="px-3 py-1 bg-white border border-slate-300 rounded text-xs font-bold hover:bg-slate-100 shadow-sm">查看明細</button></td>
+                            </tr>
+                            <tr class="hover:bg-amber-50 bg-amber-50/30 border-b border-amber-100">
+                                <td class="py-3 px-4">
+                                    <p class="font-bold text-slate-800">A 連鎖餐飲品牌</p>
+                                    <p class="text-[10px] text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded w-max mt-1">POC</p>
+                                </td>
+                                <td class="py-3 px-4 text-slate-600 font-medium">128 題</td>
+                                <td class="py-3 px-4 text-red-600 font-bold">128 題 (嚴重老化)</td>
+                                <td class="py-3 px-4 text-red-600 font-bold">2023-11-20</td>
+                                <td class="py-3 px-4"><button class="px-3 py-1 bg-amber-600 text-white rounded text-xs font-bold hover:bg-amber-700 shadow-sm">發送更新提醒</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 頁籤 4：硬體狀態 ==================== -->
+        <section id="tab-device" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6 flex items-center justify-center">
+            <div class="text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#94a3b8" class="mx-auto mb-4" viewBox="0 0 256 256"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM80,32h96a8,8,0,0,1,8,8v16H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8V72H184V216A8,8,0,0,1,176,224ZM128,176a12,12,0,1,0,12,12A12,12,0,0,0,128,176Z"></path></svg>
+                <h3 class="text-xl font-bold text-slate-700">展機地圖與硬體狀態建置中</h3>
+                <p class="text-slate-500 mt-2 font-medium">此頁面將整合全國 KIOSK 展機的網路延遲 (Ping) 與充電站狀態。</p>
+            </div>
+        </section>
+
+        <!-- 側邊滑出：維運診斷與排障面板 (SOP) -->
+        <div id="diagnosticPanel" class="absolute top-0 right-0 h-full w-full max-w-md bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] z-30 panel-slide-enter flex flex-col hidden">
+            <!-- 面板標頭 -->
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="text-lg font-black tracking-wide flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Zm-96-72a72,72,0,1,0,72,72A72,72,0,0,0,128,56Zm16,72a16,16,0,1,1-16-16A16,16,0,0,1,144,128Z"></path></svg>
+                        標準維運與排障指南 (SOP)
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1" id="diagClientName">載入中...</p>
+                </div>
+                <button onclick="closeDiagnostic()" class="text-slate-400 hover:text-white transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>
+                </button>
+            </div>
+            
+            <!-- SOP 內容區 -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- 錯誤判定 -->
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm">
+                    <h4 class="text-sm font-black text-red-800 mb-2 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V158a24,24,0,0,1,0-44v-6a8,8,0,0,1,16,0v8h8a8,8,0,0,1,0,16h-8v26a8,8,0,0,0,8,8h8a8,8,0,0,1,0,16Z"></path></svg>
+                        系統判定硬體異常
+                    </h4>
+                    <p class="text-sm text-red-700 font-medium leading-relaxed">1. 網路心跳遺失 (頻寬不足)<br>2. 未接收到充電站藍光訊號</p>
+                </div>
+
+                <!-- 排障 SOP 樹 -->
+                <div>
+                    <h4 class="text-md font-black text-slate-800 border-b border-slate-200 pb-2 mb-4">第一階段：實體硬體與網路檢查</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <div class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">檢查網路頻寬 (關鍵)</p>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">請前線人員點擊桌面 Speedtest。確認現場網路環境是否符合：<strong class="text-red-500 bg-red-50 px-1 rounded">下行 30 Mb/s 以上、上行 30 Mb/s 以上</strong>，否則語音辨識會超時(>3秒)。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">電源與充電站狀態</p>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">若整台沒電，請將電池拔出單獨充電。機器人正常接合充電站時，<strong class="text-blue-600 bg-blue-50 px-1 rounded">充電站將會發出藍光</strong>。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">機器人卡點/移動異常</p>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">請確認走道寬度是否<strong class="text-slate-800">至少有 80 公分寬</strong>，或存在超過 5 度的斜坡。環境變化會導致辨識錯誤。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-md font-black text-slate-800 border-b border-slate-200 pb-2 mb-4">第二階段：軟體設定除錯</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <div class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">4</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">麥克風與語音辨識檢查</p>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">進入 <span class="bg-slate-100 px-1 font-mono rounded border border-slate-200">[管理員模式>設備設定>當前麥克風]</span> 檢查授權。至 <span class="bg-slate-100 px-1 font-mono rounded border border-slate-200">[功能檢測>語音辨識]</span> 確認是否有打「V」。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">5</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">確認閒置候機模式</p>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">確認閒置期間是否<strong class="text-slate-800 bg-slate-100 px-1 rounded">每 10 秒至少發生一次自動自我闡述介紹</strong>。</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">6</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">程式重啟與版本</p>
+                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">若開啟異常，請重啟 `amaze_app_flutter.exe`。若有新版本，需先刪除原軟體再重新下載。</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="bg-slate-100 p-4 rounded-lg text-xs text-slate-600 border border-slate-200 font-medium">
+                    <strong class="text-slate-800">專家提示：</strong> 若已執行上述檢查但依舊無法運作，請勿自行瞎猜，點擊下方按鈕回報開發團隊。
+                </div>
+            </div>
+
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex gap-3 shrink-0">
+                <button onclick="closeDiagnostic()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg text-sm hover:bg-slate-100 transition shadow-sm">完成排障</button>
+                <button class="flex-1 px-4 py-2 bg-slate-900 text-white font-bold rounded-lg text-sm hover:bg-slate-800 transition shadow-sm flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"></path></svg>
+                    升級為 Ticket
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 邏輯腳本 -->
+    <script>
+        // 1. 時間更新邏輯
+        function updateTime() {
+            const timeEl = document.getElementById('currentTime');
+            if (timeEl) {
+                const now = new Date();
+                timeEl.innerText = now.toLocaleString('zh-TW', { hour12: false });
+            }
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 2. 頁籤切換邏輯
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-md');
+                btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
+            });
+            event.currentTarget.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
+            event.currentTarget.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            const titles = {
+                'tab-overview': '客戶大盤總覽 <span class="text-sm font-medium text-slate-400 ml-2">本月健康度與趨勢追蹤</span>',
+                'tab-intent': '對話與意圖分析',
+                'tab-kb': '全客戶知識庫 (KB) 管理',
+                'tab-device': '展機與硬體狀態'
+            };
+            document.getElementById('pageTitle').innerHTML = titles[tabId];
+        }
+
+        // 3. 診斷面板 UI 邏輯
+        const panel = document.getElementById('diagnosticPanel');
+        const diagTitle = document.getElementById('diagClientName');
+
+        function openDiagnostic(clientId) {
+            panel.classList.remove('hidden');
+            void panel.offsetWidth; 
+            panel.classList.remove('panel-slide-enter', 'panel-slide-leave');
+            panel.classList.add('panel-slide-active');
+            
+            if(clientId === 'client-c') {
+                diagTitle.innerText = "目標：C 百貨 1F 導覽機器人 (硬體/網路異常)";
+            }
+        }
+
+        function closeDiagnostic() {
+            panel.classList.remove('panel-slide-active');
+            panel.classList.add('panel-slide-leave');
+            setTimeout(() => {
+                panel.classList.add('hidden');
+                panel.classList.remove('panel-slide-leave');
+                panel.classList.add('panel-slide-enter');
+            }, 300);
+        }
+
+        // 4. 圖表渲染邏輯 (加入充滿股市風格的區塊圖)
+        let chartsInitialized = false;
+        function initCharts() {
+            if (typeof Chart === 'undefined') {
+                setTimeout(initCharts, 100);
+                return;
+            }
+            if(chartsInitialized) return;
+
+            // 股市看盤風格設定 (隱藏軸線、加入漸層填充以強化視覺感受)
+            const getSparklineConfig = (dataArray, colorHex) => ({
+                type: 'line',
+                data: {
+                    labels: Array.from({length: dataArray.length}, (_, i) => `Day ${i+1}`),
+                    datasets: [{
+                        data: dataArray,
+                        borderColor: colorHex,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: (context) => {
+                            const ctx = context.chart.ctx;
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 50);
+                            gradient.addColorStop(0, colorHex + '40'); // 帶透明度的顏色
+                            gradient.addColorStop(1, colorHex + '00'); // 完全透明
+                            return gradient;
+                        },
+                        pointRadius: 0,
+                        pointHoverRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: { x: { display: false }, y: { display: false, min: Math.min(...dataArray) * 0.9 } },
+                    layout: { padding: 0 }
+                }
+            });
+
+            // Client C: 暴跌趨勢 (Red)
+            const ctxC = document.getElementById('sparkTrendC');
+            if(ctxC) new Chart(ctxC.getContext('2d'), getSparklineConfig([400, 380, 410, 390, 350, 200, 50], '#ef4444'));
+
+            // Client B: 強烈成長 (Emerald)
+            const ctxB = document.getElementById('sparkTrendB');
+            if(ctxB) new Chart(ctxB.getContext('2d'), getSparklineConfig([120, 130, 150, 180, 220, 280, 428], '#10b981'));
+
+            // Client A: 停滯/微幅下降 (Slate/Neutral)
+            const ctxA = document.getElementById('sparkTrendA');
+            if(ctxA) new Chart(ctxA.getContext('2d'), getSparklineConfig([600, 610, 580, 590, 605, 570, 560], '#94a3b8'));
+
+            // 意圖分析長條圖
+            const ctxIntent = document.getElementById('intentChart');
+            if(ctxIntent) {
+                new Chart(ctxIntent.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['詢問菜單/價格', '營業時間確認', '客訴與建議', '尋找分店位置', '其他閒聊'],
+                        datasets: [{
+                            label: '觸發次數',
+                            data: [850, 420, 150, 310, 220],
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } }
+                    }
+                });
+            }
+            chartsInitialized = true;
+        }
+
+        initCharts();
+    </script>
+</body>
+</html>
