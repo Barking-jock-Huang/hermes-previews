@@ -73,3 +73,19 @@ Use this shape for `metadata.json`:
 6. Commit and push to `main`.
 
 GitHub Pages will publish the new preview automatically.
+
+## First-Time GitHub Setup
+
+After creating a fine-grained PAT with repository creation, contents write, administration write, and Pages write permissions, set it in the current shell:
+
+```powershell
+$env:GITHUB_TOKEN = "<your-token>"
+```
+
+Then publish this repository and enable GitHub Pages:
+
+```powershell
+.\scripts\publish-github-pages.ps1
+```
+
+The script creates or reuses `hermes-previews` under the token owner account, pushes `main`, and configures Pages to publish from `/docs`.
