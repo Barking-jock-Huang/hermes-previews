@@ -1,836 +1,199 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>愛吠的狗 - CSM 總戰情儀表板</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .blink { animation: blinker 1.5s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0.2; } }
-        /* 隱藏滾動條 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* 診斷面板滑動動畫 */
-        .panel-slide-enter { transform: translateX(100%); }
-        .panel-slide-active { transform: translateX(0); transition: transform 0.3s ease-out; }
-        .panel-slide-leave { transform: translateX(100%); transition: transform 0.3s ease-in; }
-        /* 頁籤切換動畫 */
-        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .tab-content.active { display: flex; flex-direction: column; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* 指標說明互動：每個 Dashboard 區塊皆可點擊 ? 查看數據目的 */
-        .info-btn { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:999px; background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-size:12px; font-weight:900; cursor:pointer; transition:all .15s ease; }
-        .info-btn:hover { background:#0284c7; color:white; transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,132,199,.22); }
-        .metric-purpose { margin-top:10px; padding:10px 12px; border-radius:10px; background:rgba(248,250,252,.92); border:1px dashed #cbd5e1; color:#475569; font-size:12px; line-height:1.55; }
-        .purpose-overlay { position:fixed; inset:0; background:rgba(15,23,42,.45); z-index:80; display:none; align-items:center; justify-content:center; padding:20px; }
-        .purpose-overlay.active { display:flex; }
-        .purpose-card { width:min(640px, 94vw); background:white; border-radius:22px; box-shadow:0 30px 90px rgba(15,23,42,.35); border:1px solid #e2e8f0; overflow:hidden; }
-        .purpose-card-header { padding:18px 22px; background:linear-gradient(135deg,#0f172a,#1e3a8a); color:white; display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
-        .purpose-card-body { padding:22px; color:#334155; line-height:1.75; font-size:14px; }
-        .purpose-card-body h4 { font-weight:900; color:#0f172a; margin:14px 0 4px; }
-        .purpose-card-body ul { margin:6px 0 0 1.1rem; }
-        .purpose-close { color:#cbd5e1; font-size:24px; line-height:1; font-weight:900; cursor:pointer; }
-        .purpose-close:hover { color:white; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI AMAZE 客戶產品使用狀態 Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display:none; }
+    .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+    .tab-content { display:none; animation:fadeIn .25s ease-in-out; }
+    .tab-content.active { display:block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .info-btn { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:999px; background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-size:12px; font-weight:900; cursor:pointer; transition:all .15s ease; vertical-align:middle; }
+    .info-btn:hover { background:#0284c7; color:white; transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,132,199,.22); }
+    .purpose-overlay { position:fixed; inset:0; background:rgba(15,23,42,.48); z-index:80; display:none; align-items:center; justify-content:center; padding:20px; }
+    .purpose-overlay.active { display:flex; }
+    .purpose-card { width:min(680px,94vw); max-height:86vh; overflow:auto; background:white; border-radius:22px; box-shadow:0 30px 90px rgba(15,23,42,.35); border:1px solid #e2e8f0; }
+    .purpose-card-header { padding:18px 22px; background:linear-gradient(135deg,#0f172a,#1e3a8a); color:white; display:flex; justify-content:space-between; gap:16px; align-items:flex-start; position:sticky; top:0; z-index:2; }
+    .purpose-card-body { padding:22px; color:#334155; line-height:1.75; font-size:14px; }
+    .purpose-card-body h4 { font-weight:900; color:#0f172a; margin:14px 0 4px; }
+    .purpose-card-body ul { margin:6px 0 0 1.1rem; }
+    .purpose-close { color:#cbd5e1; font-size:24px; line-height:1; font-weight:900; cursor:pointer; }
+    .purpose-close:hover { color:white; }
+    .metric-card { background:white; border:1px solid #e2e8f0; border-radius:16px; padding:16px; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+    .badge { display:inline-flex; align-items:center; padding:3px 8px; border-radius:999px; font-size:11px; font-weight:800; }
+    .soft-grid { background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 18px 18px; }
+  </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen flex overflow-hidden">
+  <aside class="w-72 bg-slate-950 text-slate-300 flex flex-col shrink-0 shadow-xl z-20 hidden md:flex">
+    <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+      <div class="w-10 h-10 rounded-2xl bg-yellow-400 flex items-center justify-center text-slate-950 font-black">狗</div>
+      <div>
+        <h1 class="text-lg font-bold text-white tracking-wider leading-tight">愛吠的狗</h1>
+        <span class="text-xs text-slate-500 font-medium">AI AMAZE 使用狀態觀測</span>
+      </div>
+    </div>
+    <div class="px-5 pt-5">
+      <div class="bg-blue-500/10 border border-blue-400/30 rounded-xl p-3 text-xs leading-relaxed text-blue-100">
+        <b class="text-white">RD / PM 溝通版</b><br>
+        重點是先對齊「要觀察什麼、目標是什麼、初步指標有哪些」，不先設計複雜健康分算法。
+      </div>
+    </div>
+    <nav class="flex-1 p-4 space-y-2" id="navMenu">
+      <button data-tab="tab-overview" onclick="switchTab(this)" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium shadow-md transition-all text-left">產品使用總覽</button>
+      <button data-tab="tab-quality" onclick="switchTab(this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all text-left">AI 回答品質</button>
+      <button data-tab="tab-kb" onclick="switchTab(this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all text-left">KB 與角色設定</button>
+      <button data-tab="tab-channel" onclick="switchTab(this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all text-left">載具 / 語音 / 系統</button>
+      <button data-tab="tab-adoption" onclick="switchTab(this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all text-left">功能採用成熟度</button>
+    </nav>
+    <div class="p-5 border-t border-slate-800 text-xs text-slate-500 leading-relaxed">
+      初版資料皆為假資料示意；目的在於與 RD/PM 討論事件記錄、資料欄位與未來可視化方向。
+    </div>
+  </aside>
 
-    <!-- 左側導覽列 (側邊欄) -->
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 shadow-xl z-20 hidden md:flex">
-        <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#facc15" viewBox="0 0 256 256"><path d="M84,104a28,28,0,1,1,28-28A28,28,0,0,1,84,104Zm44,16a28,28,0,1,0-28-28A28,28,0,0,0,128,120Zm44-16a28,28,0,1,0-28-28A28,28,0,0,0,172,104Zm19.06,37.37a44,44,0,0,0-54.89-20L128,124.28l-8.17-2.87a44,44,0,0,0-54.89,20A60.36,60.36,0,0,0,56.8,176c11.06,28.53,42.54,48,71.2,48s60.14-19.47,71.2-48A60.36,60.36,0,0,0,191.06,141.37Z"></path></svg>
-            <div>
-                <h1 class="text-lg font-bold text-white tracking-wider leading-tight">愛吠的狗</h1>
-                <span class="text-xs text-slate-500 font-medium">CSM 維運中心 v3.5</span>
-            </div>
+  <main class="flex-1 flex flex-col min-w-0 relative">
+    <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center shrink-0 z-10">
+      <div>
+        <h2 id="pageTitle" class="text-2xl font-black text-slate-800">產品使用總覽 <button class="info-btn" onclick="openPurpose(event,'dashboard-goal')">?</button></h2>
+        <p class="text-sm text-slate-500 mt-1">AI AMAZE 客戶在系統中的啟用、互動、品質與產品能力採用狀態</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md text-sm font-medium" id="currentTime">載入中...</span>
+        <span class="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-sm font-bold text-white">PM</span>
+      </div>
+    </header>
+
+    <section id="tab-overview" class="tab-content active flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+      <div class="bg-gradient-to-r from-slate-900 to-blue-900 text-white rounded-2xl p-6 mb-6 shadow-sm soft-grid">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+          <div>
+            <p class="text-blue-200 text-xs uppercase tracking-[0.18em] font-black">Product Usage Observability</p>
+            <h3 class="text-2xl font-black mt-2">先確認客戶是否真的在使用 AI AMAZE</h3>
+            <p class="text-sm text-slate-200 mt-2 max-w-3xl leading-relaxed">此頁用來和 RD / PM 對齊最基本的產品觀測：專案是否啟用、互動是否持續、入口從哪裡來、是否有活躍使用者，以及哪些客戶只是建立但沒有實際使用。</p>
+          </div>
+          <button onclick="openPurpose(event,'overview-goal')" class="bg-white text-slate-900 px-4 py-2 rounded-lg text-sm font-black shadow-sm">查看觀測目標</button>
         </div>
-        
-        <nav class="flex-1 p-4 space-y-2" id="navMenu">
-            <button onclick="switchTab('tab-overview')" class="nav-btn active w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium shadow-md transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg>
-                客戶大盤總覽
-            </button>
-            <button onclick="switchTab('tab-intent')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,80,152Z"></path></svg>
-                對話與意圖分析
-            </button>
-            <button onclick="switchTab('tab-kb')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M216,40H176V32a24,24,0,0,0-48,0v8H88a8,8,0,0,0,0,16h40V40a8,8,0,0,1,16,0V56h40V208H88V120a8,8,0,0,0-16,0v96a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V48A8,8,0,0,0,216,40ZM40,96H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm32,32H40a8,8,0,0,0,0,16H72a8,8,0,0,0,0-16Zm-32,48H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Z"></path></svg>
-                知識庫 (KB) 管理
-            </button>
-            <button onclick="switchTab('tab-device')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM80,32h96a8,8,0,0,1,8,8v16H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8V72H184V216A8,8,0,0,1,176,224ZM128,176a12,12,0,1,0,12,12A12,12,0,0,0,128,176Z"></path></svg>
-                展機與硬體狀態
-            </button>
-        </nav>
+      </div>
 
-        <div class="p-6 border-t border-slate-800">
-            <div class="flex flex-col gap-2">
-                <div class="flex items-center justify-between text-xs text-slate-400">
-                    <span>API 服務負載</span>
-                    <span class="text-emerald-400">24%</span>
-                </div>
-                <div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-emerald-500 h-full w-1/4"></div>
-                </div>
-                <div class="flex items-center gap-2 text-xs mt-2 text-slate-300">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500 blink"></div>
-                    WatchDog 守護程式連線中
-                </div>
+      <div class="grid grid-cols-2 xl:grid-cols-6 gap-4 mb-6">
+        <div class="metric-card"><p class="text-xs font-black text-slate-500 mb-1">專案總數 <button class="info-btn" onclick="openPurpose(event,'project-status')">?</button></p><div class="text-3xl font-black">18</div><p class="text-xs text-slate-400 mt-1">含正式 / 測試 / POC</p></div>
+        <div class="metric-card bg-emerald-50 border-emerald-200"><p class="text-xs font-black text-emerald-700 mb-1">活躍專案 <button class="info-btn" onclick="openPurpose(event,'active-project')">?</button></p><div class="text-3xl font-black text-emerald-900">11</div><p class="text-xs text-emerald-700 mt-1">近 7 天有互動</p></div>
+        <div class="metric-card bg-amber-50 border-amber-200"><p class="text-xs font-black text-amber-700 mb-1">低活躍 <button class="info-btn" onclick="openPurpose(event,'low-activity')">?</button></p><div class="text-3xl font-black text-amber-900">4</div><p class="text-xs text-amber-700 mt-1">互動量低於基本門檻</p></div>
+        <div class="metric-card bg-red-50 border-red-200"><p class="text-xs font-black text-red-700 mb-1">無互動 <button class="info-btn" onclick="openPurpose(event,'no-usage')">?</button></p><div class="text-3xl font-black text-red-900">3</div><p class="text-xs text-red-700 mt-1">近 30 天無前台紀錄</p></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500 mb-1">近 30 天互動 <button class="info-btn" onclick="openPurpose(event,'interaction-volume')">?</button></p><div class="text-3xl font-black">42.8k</div><p class="text-xs text-emerald-600 mt-1 font-bold">▲ 18.4% vs 前期</p></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500 mb-1">活躍使用者 <button class="info-btn" onclick="openPurpose(event,'active-users')">?</button></p><div class="text-3xl font-black">3,240</div><p class="text-xs text-slate-400 mt-1">去識別化 user / session</p></div>
+      </div>
+
+      <div class="grid grid-cols-1 2xl:grid-cols-3 gap-6 mb-6">
+        <div class="2xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+          <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black">客戶產品使用狀態樣本 <button class="info-btn" onclick="openPurpose(event,'customer-usage-list')">?</button></h3><span class="badge bg-blue-50 text-blue-700">假資料</span></div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="border-t-4 border-red-400 rounded-xl bg-slate-50 p-4">
+              <div class="flex justify-between gap-2"><h4 class="font-black text-slate-800">C 百貨 1F 導覽機器人</h4><span class="badge bg-red-100 text-red-700">使用中斷</span></div>
+              <p class="text-xs text-slate-500 mt-1">Robot / Kiosk 現場服務</p>
+              <div class="mt-4 space-y-2 text-sm"><div class="flex justify-between"><span>近 30 天互動</span><b class="text-red-600">1,245 ▼45%</b></div><div class="flex justify-between"><span>主要入口</span><b>Robot</b></div><div class="flex justify-between"><span>最後互動</span><b class="text-red-600">2 小時前</b></div><div class="flex justify-between"><span>KB 命中率</span><b>61%</b></div></div>
+              <p class="mt-3 text-xs leading-relaxed text-slate-600 bg-white border border-slate-200 rounded-lg p-3">觀察重點：互動量暴跌可能不是使用需求下降，而是現場入口或設備鏈路異常。</p>
             </div>
+            <div class="border-t-4 border-emerald-500 rounded-xl bg-slate-50 p-4">
+              <div class="flex justify-between gap-2"><h4 class="font-black text-slate-800">B 科技金控內部會議室</h4><span class="badge bg-emerald-100 text-emerald-700">穩定成長</span></div>
+              <p class="text-xs text-slate-500 mt-1">Web / Voice / API</p>
+              <div class="mt-4 space-y-2 text-sm"><div class="flex justify-between"><span>近 30 天互動</span><b class="text-emerald-600">8,920 ▲124%</b></div><div class="flex justify-between"><span>主要入口</span><b>Web + API</b></div><div class="flex justify-between"><span>活躍使用者</span><b>412</b></div><div class="flex justify-between"><span>STT 成功率</span><b>94%</b></div></div>
+              <p class="mt-3 text-xs leading-relaxed text-slate-600 bg-white border border-slate-200 rounded-lg p-3">觀察重點：使用量與使用者同步增加，代表產品能力可能正在擴散到真實組織流程。</p>
+            </div>
+            <div class="border-t-4 border-amber-400 rounded-xl bg-slate-50 p-4">
+              <div class="flex justify-between gap-2"><h4 class="font-black text-slate-800">A 連鎖餐飲品牌客服</h4><span class="badge bg-amber-100 text-amber-700">品質觀察</span></div>
+              <p class="text-xs text-slate-500 mt-1">Web Widget / Line</p>
+              <div class="mt-4 space-y-2 text-sm"><div class="flex justify-between"><span>近 30 天互動</span><b>18,500 ▬</b></div><div class="flex justify-between"><span>主要入口</span><b>Web</b></div><div class="flex justify-between"><span>兜底率</span><b class="text-amber-700">15.4%</b></div><div class="flex justify-between"><span>KB 最後更新</span><b class="text-red-600">120 天前</b></div></div>
+              <p class="mt-3 text-xs leading-relaxed text-slate-600 bg-white border border-slate-200 rounded-lg p-3">觀察重點：互動量仍在，但回答品質與資料新鮮度可能正在拖累使用體驗。</p>
+            </div>
+          </div>
         </div>
-    </aside>
-
-    <!-- 右側主內容區 -->
-    <main class="flex-1 flex flex-col min-w-0 relative">
-        
-        <!-- 共用頂部資訊列 -->
-        <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center shrink-0 z-10">
-            <h2 id="pageTitle" class="text-2xl font-black text-slate-800">客戶大盤總覽 <span class="text-sm font-medium text-slate-400 ml-2">本月健康度與趨勢追蹤</span> <button type="button" class="info-btn" onclick="openPurpose(event, 'overview')" title="查看數據目的與判讀方式">?</button></h2>
-            <div class="flex items-center gap-4">
-                <div class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md text-sm flex items-center gap-2 font-medium">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path></svg>
-                    <span id="currentTime">載入中...</span>
-                </div>
-                <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-sm font-bold border-2 border-slate-700 shadow-inner cursor-pointer text-white">
-                    優
-                </div>
-            </div>
-        </header>
-
-        <!-- ==================== 頁籤 1：客戶大盤總覽 ==================== -->
-        <section id="tab-overview" class="tab-content active flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
-
-
-            <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-4 mb-5 flex items-start gap-3 shadow-sm">
-                <div class="info-btn shrink-0" onclick="openPurpose(event, 'overview')">?</div>
-                <div>
-                    <p class="text-sm font-black mb-1">使用方式：點擊各區塊的「?」查看數據目的</p>
-                    <p class="text-xs leading-relaxed text-blue-800">此頁不是單純報表，而是給 CS 判斷「誰需要跟進、為什麼要跟進、下一步做什麼」的工作台。每個說明皆包含定義、判讀方式與建議行動。</p>
-                </div>
-            </div>
-
-            <!-- 大盤狀態統計列 -->
-            <div class="grid grid-cols-4 gap-4 mb-6">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-slate-500 font-bold mb-1">運營中專案總數 <button type="button" class="info-btn" onclick="openPurpose(event, 'kpi-total')" title="查看數據目的與判讀方式">?</button></p>
-                        <h3 class="text-2xl font-black text-slate-800">5 <span class="text-sm font-normal text-slate-500">個</span></h3>
-                    </div>
-                    <div class="p-3 bg-slate-100 rounded-lg text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg></div>
-                </div>
-                <div class="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-emerald-700 font-bold mb-1">健康運作中 <button type="button" class="info-btn" onclick="openPurpose(event, 'kpi-healthy')" title="查看數據目的與判讀方式">?</button></p>
-                        <h3 class="text-2xl font-black text-emerald-900">3 <span class="text-sm font-normal text-emerald-700">間</span></h3>
-                    </div>
-                    <div class="p-3 bg-emerald-100 rounded-lg text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg></div>
-                </div>
-                <div class="bg-amber-50 p-4 rounded-xl shadow-sm border border-amber-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-amber-700 font-bold mb-1">需觀察 (老化/低活) <button type="button" class="info-btn" onclick="openPurpose(event, 'kpi-watch')" title="查看數據目的與判讀方式">?</button></p>
-                        <h3 class="text-2xl font-black text-amber-900">1 <span class="text-sm font-normal text-amber-700">間</span></h3>
-                    </div>
-                    <div class="p-3 bg-amber-100 rounded-lg text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"></path></svg></div>
-                </div>
-                <div class="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200 flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-red-700 font-bold mb-1">異常斷線中 <button type="button" class="info-btn" onclick="openPurpose(event, 'kpi-critical')" title="查看數據目的與判讀方式">?</button></p>
-                        <h3 class="text-2xl font-black text-red-900 blink">1 <span class="text-sm font-normal text-red-700">間</span></h3>
-                    </div>
-                    <div class="p-3 bg-red-100 rounded-lg text-red-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM120,104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,88a12,12,0,1,1,12-12A12,12,0,0,1,128,192Z"></path></svg></div>
-                </div>
-            </div>
-
-            <!-- 卡片網格區 -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6 pb-6">
-                
-                <!-- 客戶卡片 1：異常斷線/暴跌 (CSM維運) -->
-                <div class="bg-white rounded-xl shadow-md border-t-4 border-slate-300 flex flex-col overflow-hidden relative">
-                    <!-- 警告標籤 (如果有) -->
-                    <div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1 shadow-md z-10 blink">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V158a24,24,0,0,1,0-44v-6a8,8,0,0,1,16,0v8h8a8,8,0,0,1,0,16h-8v26a8,8,0,0,0,8,8h8a8,8,0,0,1,0,16Z"></path></svg>
-                        斷線告警
-                    </div>
-                    
-                    <!-- 卡片標頭 -->
-                    <div class="p-5 border-b border-slate-100">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="bg-blue-100 text-blue-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-blue-200">CSM 維運中</span>
-                            <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">實體機器人展機</span>
-                        </div>
-                        <h3 class="text-xl font-black text-slate-800 truncate">C 百貨 1F 導覽機器人 <button type="button" class="info-btn" onclick="openPurpose(event, 'client-c')" title="查看數據目的與判讀方式">?</button></h3>
-                        <p class="text-xs text-slate-400 mt-1">AI AMAZE (Windows 端)</p>
-                    </div>
-
-                    <!-- 股市風格趨勢數據 -->
-                    <div class="p-5 flex-1 flex flex-col gap-4">
-                        <!-- 數據 1: 互動量大盤 -->
-                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 relative overflow-hidden">
-                            <div class="flex justify-between items-end relative z-10">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天互動總量 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-interactions')" title="查看數據目的與判讀方式">?</button></p>
-                                    <div class="flex items-baseline gap-2">
-                                        <h4 class="text-3xl font-black text-slate-800">1,245</h4>
-                                        <span class="text-sm font-bold text-red-500 flex items-center">
-                                            ▼ 45.2% <span class="text-[10px] text-slate-400 font-normal ml-1">(較前30日)</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- 背景 Sparkline -->
-                            <div class="absolute bottom-0 left-0 w-full h-12 opacity-80 pointer-events-none">
-                                <canvas id="sparkTrendC"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- 數據 2: 其他指標 -->
-                        <div class="flex gap-4">
-                            <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                                <p class="text-[10px] font-bold text-slate-500 mb-1">知識庫更新狀態 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-kb-age')" title="查看數據目的與判讀方式">?</button></p>
-                                <p class="text-lg font-bold text-red-600">65 天未更新</p>
-                            </div>
-                            <div class="flex-1 bg-red-50 rounded-lg p-3 border border-red-100">
-                                <p class="text-[10px] font-bold text-red-800 mb-1">硬體連線狀態 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-device-heartbeat')" title="查看數據目的與判讀方式">?</button></p>
-                                <p class="text-sm font-bold text-red-600">無網路心跳 (>2hr)</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 動作區 -->
-                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex gap-2">
-                        <button onclick="openDiagnostic('client-c')" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center justify-center gap-2">
-                            開啟維運排障診斷
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 客戶卡片 2：健康爆發成長 (PM導入中) -->
-                <div class="bg-white rounded-xl shadow-md border-t-4 border-emerald-500 flex flex-col overflow-hidden relative">
-                    <div class="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg shadow-md z-10">
-                        高成長動能
-                    </div>
-                    
-                    <div class="p-5 border-b border-slate-100">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="bg-purple-100 text-purple-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-purple-200">PM 導入中 (月收)</span>
-                            <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">SaaS 網頁版</span>
-                        </div>
-                        <h3 class="text-xl font-black text-slate-800 truncate">B 科技金控內部會議室 <button type="button" class="info-btn" onclick="openPurpose(event, 'client-b')" title="查看數據目的與判讀方式">?</button></h3>
-                        <p class="text-xs text-slate-400 mt-1">SecureMeet (會議摘要與翻譯)</p>
-                    </div>
-
-                    <div class="p-5 flex-1 flex flex-col gap-4">
-                        <div class="bg-emerald-50/30 rounded-lg p-4 border border-emerald-100 relative overflow-hidden">
-                            <div class="flex justify-between items-end relative z-10">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天生成會議摘要數 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-meeting-summary')" title="查看數據目的與判讀方式">?</button></p>
-                                    <div class="flex items-baseline gap-2">
-                                        <h4 class="text-3xl font-black text-slate-800">428</h4>
-                                        <span class="text-sm font-bold text-emerald-600 flex items-center">
-                                            ▲ 124.5% <span class="text-[10px] text-slate-400 font-normal ml-1">(較前30日)</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="absolute bottom-0 left-0 w-full h-12 opacity-80 pointer-events-none">
-                                <canvas id="sparkTrendB"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                                <p class="text-[10px] font-bold text-slate-500 mb-1">語者辨識註冊數 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-speaker')" title="查看數據目的與判讀方式">?</button></p>
-                                <div class="flex items-baseline gap-1">
-                                    <p class="text-lg font-bold text-slate-800">145</p>
-                                    <span class="text-[10px] text-emerald-600 font-bold">▲ 12</span>
-                                </div>
-                            </div>
-                            <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                                <p class="text-[10px] font-bold text-slate-500 mb-1">Prompt 模板修改 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-prompt')" title="查看數據目的與判讀方式">?</button></p>
-                                <p class="text-sm font-bold text-slate-800 mt-1">高活躍 (2天前)</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex gap-2">
-                        <button class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg text-sm font-bold shadow-sm transition">
-                            檢視用量與 Token 成本
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 客戶卡片 3：停滯需觀察 (POC) -->
-                <div class="bg-white rounded-xl shadow-md border-t-4 border-amber-400 flex flex-col overflow-hidden relative">
-                    <div class="p-5 border-b border-slate-100">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="bg-amber-100 text-amber-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-amber-200">POC 概念驗證</span>
-                            <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">Line/Web 跨平台</span>
-                        </div>
-                        <h3 class="text-xl font-black text-slate-800 truncate">A 連鎖餐飲品牌客服 <button type="button" class="info-btn" onclick="openPurpose(event, 'client-a')" title="查看數據目的與判讀方式">?</button></h3>
-                        <p class="text-xs text-slate-400 mt-1">AI AMAZE (跨平台文字客服)</p>
-                    </div>
-
-                    <div class="p-5 flex-1 flex flex-col gap-4">
-                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 relative overflow-hidden">
-                            <div class="flex justify-between items-end relative z-10">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天互動總句數 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-message-volume')" title="查看數據目的與判讀方式">?</button></p>
-                                    <div class="flex items-baseline gap-2">
-                                        <h4 class="text-3xl font-black text-slate-800">18,500</h4>
-                                        <span class="text-sm font-bold text-slate-500 flex items-center">
-                                            ▼ 2.1% <span class="text-[10px] text-slate-400 font-normal ml-1">(持平)</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="absolute bottom-0 left-0 w-full h-12 opacity-80 pointer-events-none">
-                                <canvas id="sparkTrendA"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <div class="flex-1 bg-amber-50/50 rounded-lg p-3 border border-amber-100">
-                                <p class="text-[10px] font-bold text-amber-700 mb-1">兜底回答率 (Fallback) <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-fallback')" title="查看數據目的與判讀方式">?</button></p>
-                                <div class="flex items-baseline gap-1">
-                                    <p class="text-lg font-bold text-amber-800">15.4%</p>
-                                    <span class="text-[10px] text-red-500 font-bold">▲ 3.2% (惡化)</span>
-                                </div>
-                            </div>
-                            <div class="flex-1 bg-amber-50/50 rounded-lg p-3 border border-amber-100">
-                                <p class="text-[10px] font-bold text-amber-700 mb-1">知識庫更新 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-kb-age')" title="查看數據目的與判讀方式">?</button></p>
-                                <p class="text-sm font-bold text-red-600 mt-1">120 天未更新</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 flex gap-2">
-                        <button onclick="switchTab('tab-intent')" class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 py-2 rounded-lg text-sm font-bold shadow-sm transition">
-                            查看意圖建議擴充題庫
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ==================== 頁籤 2：對話與意圖分析 ==================== -->
-        <section id="tab-intent" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#3b82f6" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,80,152Z"></path></svg>
-                        熱門意圖分佈 (Top Intents) <button type="button" class="info-btn" onclick="openPurpose(event, 'intent-chart')" title="查看數據目的與判讀方式">?</button>
-                    </h3>
-                    <select class="border border-slate-300 rounded px-3 py-1 text-sm bg-slate-50 font-bold"><option>A 連鎖餐飲品牌 (POC)</option><option>C 百貨機器人 (CSM維運)</option></select>
-                </div>
-                <div class="relative h-64 w-full"><canvas id="intentChart"></canvas></div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ef4444" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V158a24,24,0,0,1,0-44v-6a8,8,0,0,1,16,0v8h8a8,8,0,0,1,0,16h-8v26a8,8,0,0,0,8,8h8a8,8,0,0,1,0,16Z"></path></svg>
-                    高頻無效回答 (兜底回覆清單) <button type="button" class="info-btn" onclick="openPurpose(event, 'fallback-table')" title="查看數據目的與判讀方式">?</button>
-                </h3>
-                <p class="text-sm text-slate-500 mb-4">以下是使用者提問，但 AI 觸發了「我不知道」預設回覆的內容。請建議客戶擴充至知識庫。</p>
-                <div class="overflow-x-auto border border-slate-200 rounded-lg">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 text-sm">
-                                <th class="py-3 px-4 font-bold border-b border-slate-200">使用者原始提問 (User Prompt)</th>
-                                <th class="py-3 px-4 font-bold border-b border-slate-200">發生次數</th>
-                                <th class="py-3 px-4 font-bold border-b border-slate-200">建議動作</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm">
-                            <tr class="hover:bg-slate-50 border-b border-slate-100">
-                                <td class="py-3 px-4 text-slate-800 font-medium">「請問母親節套餐有附素食選擇嗎？」</td>
-                                <td class="py-3 px-4 text-slate-600 font-bold">45 次</td>
-                                <td class="py-3 px-4"><button class="text-blue-600 hover:underline font-bold text-xs">加入知識庫</button></td>
-                            </tr>
-                            <tr class="hover:bg-slate-50 border-b border-slate-100">
-                                <td class="py-3 px-4 text-slate-800 font-medium">「你們有跟 Ubereats 合作嗎？」</td>
-                                <td class="py-3 px-4 text-slate-600 font-bold">32 次</td>
-                                <td class="py-3 px-4"><button class="text-blue-600 hover:underline font-bold text-xs">加入知識庫</button></td>
-                            </tr>
-                            <tr class="hover:bg-slate-50">
-                                <td class="py-3 px-4 text-slate-800 font-medium">「兒童椅夠不夠？」</td>
-                                <td class="py-3 px-4 text-slate-600 font-bold">18 次</td>
-                                <td class="py-3 px-4"><button class="text-blue-600 hover:underline font-bold text-xs">加入知識庫</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== 頁籤 3：KB 管理 ==================== -->
-        <section id="tab-kb" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#475569" viewBox="0 0 256 256"><path d="M216,40H176V32a24,24,0,0,0-48,0v8H88a8,8,0,0,0,0,16h40V40a8,8,0,0,1,16,0V56h40V208H88V120a8,8,0,0,0-16,0v96a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V48A8,8,0,0,0,216,40ZM40,96H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm32,32H40a8,8,0,0,0,0,16H72a8,8,0,0,0,0-16Zm-32,48H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Z"></path></svg>
-                        全客戶知識庫 (KB) 健康度 <button type="button" class="info-btn" onclick="openPurpose(event, 'kb-table')" title="查看數據目的與判讀方式">?</button>
-                    </h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-600 text-sm">
-                                <th class="py-3 px-4 font-bold border-b border-slate-200">專案階段 / 客戶名稱</th>
-                                <th class="py-3 px-4 font-bold border-b border-slate-200">總 FAQ 數量</th>
-                                <th class="py-3 px-4 font-bold border-b border-slate-200">老化題數 (>90天未編輯)</th>
-                                <th class="py-3 px-4 font-bold border-b border-slate-200">最後登入維護日</th>
-                                <th class="py-3 px-4 font-bold border-b border-slate-200">管理動作</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm">
-                            <tr class="hover:bg-slate-50 border-b border-slate-100">
-                                <td class="py-3 px-4">
-                                    <p class="font-bold text-slate-800">B 科技金控內部</p>
-                                    <p class="text-[10px] text-purple-600 font-bold bg-purple-50 px-1.5 py-0.5 rounded w-max mt-1">PM 導入中</p>
-                                </td>
-                                <td class="py-3 px-4 text-slate-600 font-medium">350 題</td>
-                                <td class="py-3 px-4 text-emerald-600 font-bold">0 題 (優良)</td>
-                                <td class="py-3 px-4 text-slate-600">2024-05-18</td>
-                                <td class="py-3 px-4"><button class="px-3 py-1 bg-white border border-slate-300 rounded text-xs font-bold hover:bg-slate-100 shadow-sm">查看明細</button></td>
-                            </tr>
-                            <tr class="hover:bg-amber-50 bg-amber-50/30 border-b border-amber-100">
-                                <td class="py-3 px-4">
-                                    <p class="font-bold text-slate-800">A 連鎖餐飲品牌</p>
-                                    <p class="text-[10px] text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded w-max mt-1">POC</p>
-                                </td>
-                                <td class="py-3 px-4 text-slate-600 font-medium">128 題</td>
-                                <td class="py-3 px-4 text-red-600 font-bold">128 題 (嚴重老化)</td>
-                                <td class="py-3 px-4 text-red-600 font-bold">2023-11-20</td>
-                                <td class="py-3 px-4"><button class="px-3 py-1 bg-amber-600 text-white rounded text-xs font-bold hover:bg-amber-700 shadow-sm">發送更新提醒</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== 頁籤 4：硬體狀態 ==================== -->
-        <section id="tab-device" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
-            <div class="mb-5 flex justify-between items-start gap-4">
-                <div>
-                    <h3 class="text-xl font-black text-slate-800 flex items-center gap-2">展機與硬體狀態總覽 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-map')" title="查看數據目的與判讀方式">?</button></h3>
-                    <p class="text-sm text-slate-500 mt-1 font-medium">假資料示意：用來追蹤 Kiosk / 機器人現場端點是否在線、網路是否穩定、是否需要派工。</p>
-                </div>
-                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-3 py-1 shadow-sm">最後同步：3 分鐘前</span>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-black text-slate-500 mb-1">展機總數 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-total')" title="查看數據目的與判讀方式">?</button></p>
-                    <div class="text-3xl font-black text-slate-800">12</div>
-                    <p class="text-xs text-slate-400 mt-1">含 Kiosk 8 台、機器人 4 台</p>
-                </div>
-                <div class="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-200">
-                    <p class="text-xs font-black text-emerald-700 mb-1">在線正常 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-online')" title="查看數據目的與判讀方式">?</button></p>
-                    <div class="text-3xl font-black text-emerald-900">9</div>
-                    <p class="text-xs text-emerald-700 mt-1">平均延遲 42ms</p>
-                </div>
-                <div class="bg-amber-50 p-4 rounded-xl shadow-sm border border-amber-200">
-                    <p class="text-xs font-black text-amber-700 mb-1">需現場確認 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-warning')" title="查看數據目的與判讀方式">?</button></p>
-                    <div class="text-3xl font-black text-amber-900">2</div>
-                    <p class="text-xs text-amber-700 mt-1">網路延遲偏高或電量偏低</p>
-                </div>
-                <div class="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200">
-                    <p class="text-xs font-black text-red-700 mb-1">離線 / 異常 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-offline')" title="查看數據目的與判讀方式">?</button></p>
-                    <div class="text-3xl font-black text-red-900 blink">1</div>
-                    <p class="text-xs text-red-700 mt-1">心跳中斷超過 2 小時</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                <div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-slate-800">設備清單與派工狀態 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-table')" title="查看數據目的與判讀方式">?</button></h3>
-                        <button class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold shadow-sm">匯出巡檢表</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-600 text-sm">
-                                    <th class="py-3 px-4 font-bold border-b border-slate-200">客戶 / 位置</th>
-                                    <th class="py-3 px-4 font-bold border-b border-slate-200">設備類型</th>
-                                    <th class="py-3 px-4 font-bold border-b border-slate-200">狀態</th>
-                                    <th class="py-3 px-4 font-bold border-b border-slate-200">最後心跳</th>
-                                    <th class="py-3 px-4 font-bold border-b border-slate-200">網路 / 電源</th>
-                                    <th class="py-3 px-4 font-bold border-b border-slate-200">建議動作</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-sm">
-                                <tr class="hover:bg-red-50 bg-red-50/40 border-b border-red-100">
-                                    <td class="py-3 px-4"><p class="font-bold text-slate-800">C 百貨 1F</p><p class="text-xs text-slate-500">導覽機器人 R-03</p></td>
-                                    <td class="py-3 px-4 text-slate-600 font-medium">機器人</td>
-                                    <td class="py-3 px-4"><span class="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-black">離線</span></td>
-                                    <td class="py-3 px-4 text-red-600 font-bold">2 小時 14 分前</td>
-                                    <td class="py-3 px-4"><p class="font-bold text-red-600">Ping timeout</p><p class="text-xs text-slate-500">電量未知</p></td>
-                                    <td class="py-3 px-4"><button onclick="openDiagnostic('client-c')" class="px-3 py-1 bg-red-600 text-white rounded text-xs font-bold hover:bg-red-700">開啟 SOP</button></td>
-                                </tr>
-                                <tr class="hover:bg-amber-50 bg-amber-50/30 border-b border-amber-100">
-                                    <td class="py-3 px-4"><p class="font-bold text-slate-800">D 展館入口</p><p class="text-xs text-slate-500">Kiosk K-11</p></td>
-                                    <td class="py-3 px-4 text-slate-600 font-medium">Kiosk</td>
-                                    <td class="py-3 px-4"><span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-black">延遲高</span></td>
-                                    <td class="py-3 px-4 text-slate-600">4 分鐘前</td>
-                                    <td class="py-3 px-4"><p class="font-bold text-amber-700">Ping 386ms</p><p class="text-xs text-slate-500">AC 電源正常</p></td>
-                                    <td class="py-3 px-4"><button class="px-3 py-1 bg-amber-600 text-white rounded text-xs font-bold hover:bg-amber-700">請現場測速</button></td>
-                                </tr>
-                                <tr class="hover:bg-amber-50 bg-amber-50/20 border-b border-amber-100">
-                                    <td class="py-3 px-4"><p class="font-bold text-slate-800">E 醫療院區 B1</p><p class="text-xs text-slate-500">導覽機器人 R-08</p></td>
-                                    <td class="py-3 px-4 text-slate-600 font-medium">機器人</td>
-                                    <td class="py-3 px-4"><span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-black">電量低</span></td>
-                                    <td class="py-3 px-4 text-slate-600">1 分鐘前</td>
-                                    <td class="py-3 px-4"><p class="font-bold text-amber-700">電量 18%</p><p class="text-xs text-slate-500">Ping 58ms</p></td>
-                                    <td class="py-3 px-4"><button class="px-3 py-1 bg-white border border-slate-300 rounded text-xs font-bold hover:bg-slate-100">提醒充電</button></td>
-                                </tr>
-                                <tr class="hover:bg-slate-50 border-b border-slate-100">
-                                    <td class="py-3 px-4"><p class="font-bold text-slate-800">B 科技金控 12F</p><p class="text-xs text-slate-500">會議室 Kiosk K-04</p></td>
-                                    <td class="py-3 px-4 text-slate-600 font-medium">Kiosk</td>
-                                    <td class="py-3 px-4"><span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-black">正常</span></td>
-                                    <td class="py-3 px-4 text-slate-600">30 秒前</td>
-                                    <td class="py-3 px-4"><p class="font-bold text-emerald-700">Ping 31ms</p><p class="text-xs text-slate-500">AC 電源正常</p></td>
-                                    <td class="py-3 px-4"><span class="text-xs text-slate-400 font-bold">無需處理</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                        <h3 class="text-lg font-bold text-slate-800 mb-4">本週硬體事件 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-events')" title="查看數據目的與判讀方式">?</button></h3>
-                        <div class="space-y-3 text-sm">
-                            <div class="flex justify-between items-center"><span class="text-slate-600">心跳中斷</span><span class="font-black text-red-600">4 次</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-600">網路延遲高於 300ms</span><span class="font-black text-amber-600">7 次</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-600">低電量提醒</span><span class="font-black text-amber-600">3 次</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-600">現場已確認恢復</span><span class="font-black text-emerald-600">5 件</span></div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900 text-white rounded-xl shadow-sm p-5">
-                        <h3 class="text-lg font-black mb-3">CS 今日建議</h3>
-                        <ul class="space-y-3 text-sm text-slate-200 leading-relaxed">
-                            <li>• 先處理 C 百貨離線設備，避免現場服務中斷持續擴大。</li>
-                            <li>• 請 D 展館現場測速，若延遲持續高於 300ms，建立網路改善 ticket。</li>
-                            <li>• E 醫療院區設備需確認充電站接觸是否正常。</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 側邊滑出：維運診斷與排障面板 (SOP) -->
-        <div id="diagnosticPanel" class="absolute top-0 right-0 h-full w-full max-w-md bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] z-30 panel-slide-enter flex flex-col hidden">
-            <!-- 面板標頭 -->
-            <div class="bg-slate-900 text-white p-5 flex justify-between items-center shrink-0">
-                <div>
-                    <h3 class="text-lg font-black tracking-wide flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Zm-96-72a72,72,0,1,0,72,72A72,72,0,0,0,128,56Zm16,72a16,16,0,1,1-16-16A16,16,0,0,1,144,128Z"></path></svg>
-                        標準維運與排障指南 (SOP) <button type="button" class="info-btn" onclick="openPurpose(event, 'sop-panel')" title="查看數據目的與判讀方式">?</button>
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-1" id="diagClientName">載入中...</p>
-                </div>
-                <button onclick="closeDiagnostic()" class="text-slate-400 hover:text-white transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>
-                </button>
-            </div>
-            
-            <!-- SOP 內容區 -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                <!-- 錯誤判定 -->
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm">
-                    <h4 class="text-sm font-black text-red-800 mb-2 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V158a24,24,0,0,1,0-44v-6a8,8,0,0,1,16,0v8h8a8,8,0,0,1,0,16h-8v26a8,8,0,0,0,8,8h8a8,8,0,0,1,0,16Z"></path></svg>
-                        系統判定硬體異常
-                    </h4>
-                    <p class="text-sm text-red-700 font-medium leading-relaxed">1. 網路心跳遺失 (頻寬不足)<br>2. 未接收到充電站藍光訊號</p>
-                </div>
-
-                <!-- 排障 SOP 樹 -->
-                <div>
-                    <h4 class="text-md font-black text-slate-800 border-b border-slate-200 pb-2 mb-4">第一階段：實體硬體與網路檢查</h4>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">檢查網路頻寬 (關鍵)</p>
-                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">請前線人員點擊桌面 Speedtest。確認現場網路環境是否符合：<strong class="text-red-500 bg-red-50 px-1 rounded">下行 30 Mb/s 以上、上行 30 Mb/s 以上</strong>，否則語音辨識會超時(>3秒)。</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">電源與充電站狀態</p>
-                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">若整台沒電，請將電池拔出單獨充電。機器人正常接合充電站時，<strong class="text-blue-600 bg-blue-50 px-1 rounded">充電站將會發出藍光</strong>。</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">機器人卡點/移動異常</p>
-                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">請確認走道寬度是否<strong class="text-slate-800">至少有 80 公分寬</strong>，或存在超過 5 度的斜坡。環境變化會導致辨識錯誤。</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="text-md font-black text-slate-800 border-b border-slate-200 pb-2 mb-4">第二階段：軟體設定除錯</h4>
-                    <ul class="space-y-4">
-                        <li class="flex items-start gap-3">
-                            <div class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">4</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">麥克風與語音辨識檢查</p>
-                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">進入 <span class="bg-slate-100 px-1 font-mono rounded border border-slate-200">[管理員模式>設備設定>當前麥克風]</span> 檢查授權。至 <span class="bg-slate-100 px-1 font-mono rounded border border-slate-200">[功能檢測>語音辨識]</span> 確認是否有打「V」。</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">5</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">確認閒置候機模式</p>
-                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">確認閒置期間是否<strong class="text-slate-800 bg-slate-100 px-1 rounded">每 10 秒至少發生一次自動自我闡述介紹</strong>。</p>
-                            </div>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="bg-slate-200 text-slate-700 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">6</div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-800">程式重啟與版本</p>
-                                <p class="text-xs text-slate-600 mt-1 leading-relaxed">若開啟異常，請重啟 `amaze_app_flutter.exe`。若有新版本，需先刪除原軟體再重新下載。</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="bg-slate-100 p-4 rounded-lg text-xs text-slate-600 border border-slate-200 font-medium">
-                    <strong class="text-slate-800">專家提示：</strong> 若已執行上述檢查但依舊無法運作，請勿自行瞎猜，點擊下方按鈕回報開發團隊。
-                </div>
-            </div>
-
-            <div class="p-5 border-t border-slate-200 bg-slate-50 flex gap-3 shrink-0">
-                <button onclick="closeDiagnostic()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 font-bold rounded-lg text-sm hover:bg-slate-100 transition shadow-sm">完成排障</button>
-                <button class="flex-1 px-4 py-2 bg-slate-900 text-white font-bold rounded-lg text-sm hover:bg-slate-800 transition shadow-sm flex justify-center items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"></path></svg>
-                    升級為 Ticket
-                </button>
-            </div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+          <h3 class="text-lg font-black mb-4">入口來源分布 <button class="info-btn" onclick="openPurpose(event,'channel-distribution')">?</button></h3>
+          <div class="h-64"><canvas id="channelChart"></canvas></div>
+          <p class="text-xs text-slate-500 leading-relaxed mt-3">初期先看不同入口是否有實際流量，不急著判定好壞；重點是確認 Web、Kiosk、Robot、API 等產品能力是否被使用。</p>
         </div>
+      </div>
+    </section>
 
+    <section id="tab-quality" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+      <div class="grid grid-cols-1 xl:grid-cols-4 gap-4 mb-6">
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">KB 命中率 <button class="info-btn" onclick="openPurpose(event,'kb-hit-rate')">?</button></p><div class="text-3xl font-black mt-2">76%</div><p class="text-xs text-slate-400 mt-1">回答有使用 KB 的比例</p></div>
+        <div class="metric-card bg-amber-50 border-amber-200"><p class="text-xs font-black text-amber-700">兜底率 <button class="info-btn" onclick="openPurpose(event,'fallback-rate')">?</button></p><div class="text-3xl font-black text-amber-900 mt-2">11.8%</div><p class="text-xs text-amber-700 mt-1">需觀察知識缺口</p></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">平均回應時間 <button class="info-btn" onclick="openPurpose(event,'latency')">?</button></p><div class="text-3xl font-black mt-2">2.4s</div><p class="text-xs text-slate-400 mt-1">P95：6.8s</p></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">高頻未覆蓋問題 <button class="info-btn" onclick="openPurpose(event,'uncovered-questions')">?</button></p><div class="text-3xl font-black mt-2">35</div><p class="text-xs text-red-500 mt-1 font-bold">本週新增 12 題</p></div>
+      </div>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5"><h3 class="text-lg font-black mb-4">熱門意圖與覆蓋狀態 <button class="info-btn" onclick="openPurpose(event,'intent-coverage')">?</button></h3><div class="h-72"><canvas id="intentChart"></canvas></div></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 border-b border-slate-200 bg-slate-50"><h3 class="text-lg font-black">高頻未覆蓋問題 <button class="info-btn" onclick="openPurpose(event,'uncovered-table')">?</button></h3><p class="text-sm text-slate-500 mt-1">用於跟 PM/RD 討論：哪些使用者需求應該被記錄、分類並回饋到 KB 或產品設定。</p></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="text-left p-3">問題樣本</th><th class="text-left p-3">次數</th><th class="text-left p-3">觀察方向</th></tr></thead><tbody><tr class="border-t"><td class="p-3 font-medium">母親節套餐有素食嗎？</td><td class="p-3 font-black">45</td><td class="p-3 text-slate-600">活動型 KB 缺口</td></tr><tr class="border-t"><td class="p-3 font-medium">支援外送平台查詢嗎？</td><td class="p-3 font-black">32</td><td class="p-3 text-slate-600">服務範圍未定義</td></tr><tr class="border-t"><td class="p-3 font-medium">日文問路時回答不完整</td><td class="p-3 font-black">18</td><td class="p-3 text-slate-600">多語 KB / Prompt 缺口</td></tr></tbody></table></div>
+      </div>
+    </section>
 
-        <!-- 指標目的說明彈窗 -->
-        <div id="purposeOverlay" class="purpose-overlay" onclick="closePurpose(event)">
-            <div class="purpose-card" onclick="event.stopPropagation()">
-                <div class="purpose-card-header">
-                    <div>
-                        <p class="text-xs uppercase tracking-[0.18em] text-sky-200 font-black">Data Purpose</p>
-                        <h3 id="purposeTitle" class="text-xl font-black mt-1">數據說明</h3>
-                    </div>
-                    <button type="button" class="purpose-close" onclick="closePurpose(event)" aria-label="關閉">×</button>
-                </div>
-                <div id="purposeBody" class="purpose-card-body"></div>
-            </div>
-        </div>
+    <section id="tab-kb" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 border-b border-slate-200 bg-slate-50"><h3 class="text-lg font-black">知識庫新鮮度與維護狀態 <button class="info-btn" onclick="openPurpose(event,'kb-freshness')">?</button></h3></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="text-left p-3">客戶</th><th class="text-left p-3">FAQ 數</th><th class="text-left p-3">最後更新</th><th class="text-left p-3">老化內容</th><th class="text-left p-3">觀察目標</th></tr></thead><tbody><tr class="border-t"><td class="p-3 font-bold">B 科技金控</td><td class="p-3">350</td><td class="p-3 text-emerald-600 font-bold">2 天前</td><td class="p-3">0</td><td class="p-3 text-slate-600">維持版本紀錄</td></tr><tr class="border-t bg-amber-50/50"><td class="p-3 font-bold">A 餐飲品牌</td><td class="p-3">128</td><td class="p-3 text-red-600 font-bold">120 天前</td><td class="p-3 text-red-600 font-bold">128</td><td class="p-3 text-slate-600">確認內容老化是否影響兜底率</td></tr><tr class="border-t"><td class="p-3 font-bold">C 百貨</td><td class="p-3">214</td><td class="p-3 text-amber-600 font-bold">65 天前</td><td class="p-3">72</td><td class="p-3 text-slate-600">與現場服務異常分開觀察</td></tr></tbody></table></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5"><h3 class="text-lg font-black mb-4">角色 / Prompt 設定檢查 <button class="info-btn" onclick="openPurpose(event,'prompt-completeness')">?</button></h3><div class="space-y-3 text-sm"><div class="flex justify-between"><span>角色名稱</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>服務範圍</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>回答語氣</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>禁止回答範圍</span><b class="text-amber-600">部分缺少</b></div><div class="flex justify-between"><span>Fallback 規則</span><b class="text-amber-600">需補強</b></div><div class="flex justify-between"><span>多語規則</span><b class="text-red-600">未完整</b></div></div><p class="text-xs text-slate-500 leading-relaxed mt-5 bg-slate-50 p-3 rounded-lg border">初期不需複雜分數，只需讓 RD/PM 知道哪些設定欄位應被結構化記錄，未來才能做健康檢查。</p></div>
+      </div>
+    </section>
 
-    </main>
+    <section id="tab-channel" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+      <div class="grid grid-cols-1 xl:grid-cols-4 gap-4 mb-6">
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">裝置在線率 <button class="info-btn" onclick="openPurpose(event,'device-online-rate')">?</button></p><div class="text-3xl font-black mt-2">92%</div><p class="text-xs text-slate-400 mt-1">12 台中 11 台在線</p></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">STT 成功率 <button class="info-btn" onclick="openPurpose(event,'stt-tts')">?</button></p><div class="text-3xl font-black mt-2">91%</div><p class="text-xs text-amber-600 mt-1 font-bold">現場噪音需觀察</p></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">TTS 成功率 <button class="info-btn" onclick="openPurpose(event,'stt-tts')">?</button></p><div class="text-3xl font-black mt-2">98%</div><p class="text-xs text-slate-400 mt-1">播放失敗 12 次</p></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">API 錯誤事件 <button class="info-btn" onclick="openPurpose(event,'system-events')">?</button></p><div class="text-3xl font-black mt-2">27</div><p class="text-xs text-slate-400 mt-1">含 timeout / RAG no result</p></div>
+      </div>
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6"><div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 bg-slate-50 border-b"><h3 class="text-lg font-black">載具與硬體狀態 <button class="info-btn" onclick="openPurpose(event,'device-table')">?</button></h3></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-3 text-left">位置</th><th class="p-3 text-left">入口</th><th class="p-3 text-left">狀態</th><th class="p-3 text-left">最後心跳</th><th class="p-3 text-left">觀察重點</th></tr></thead><tbody><tr class="border-t bg-red-50/50"><td class="p-3 font-bold">C 百貨 1F</td><td class="p-3">Robot</td><td class="p-3 text-red-600 font-black">離線</td><td class="p-3">2 小時前</td><td class="p-3 text-slate-600">入口中斷會影響互動量判讀</td></tr><tr class="border-t bg-amber-50/40"><td class="p-3 font-bold">D 展館入口</td><td class="p-3">Kiosk</td><td class="p-3 text-amber-600 font-black">延遲高</td><td class="p-3">4 分鐘前</td><td class="p-3 text-slate-600">回應速度與現場網路需拆開觀察</td></tr><tr class="border-t"><td class="p-3 font-bold">B 金控 12F</td><td class="p-3">Web + API</td><td class="p-3 text-emerald-600 font-black">正常</td><td class="p-3">30 秒前</td><td class="p-3 text-slate-600">API 使用代表系統整合採用</td></tr></tbody></table></div><div class="bg-slate-900 text-white rounded-xl shadow-sm p-5"><h3 class="text-lg font-black mb-4">異常事件分類</h3><div class="space-y-3 text-sm"><div class="flex justify-between"><span>RAG no result</span><b>54</b></div><div class="flex justify-between"><span>API timeout</span><b>12</b></div><div class="flex justify-between"><span>STT failed</span><b>8</b></div><div class="flex justify-between"><span>TTS failed</span><b>3</b></div><div class="flex justify-between"><span>Kiosk offline</span><b>1</b></div></div></div></div>
+    </section>
 
-    <!-- 邏輯腳本 -->
-    <script>
+    <section id="tab-adoption" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 bg-slate-50 border-b"><h3 class="text-lg font-black">功能採用矩陣 <button class="info-btn" onclick="openPurpose(event,'feature-adoption')">?</button></h3><p class="text-sm text-slate-500 mt-1">用來和 PM/RD 討論：哪些功能需要記錄「已啟用」與「有實際使用」。</p></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-3 text-left">客戶</th><th class="p-3">KB</th><th class="p-3">Prompt</th><th class="p-3">Web</th><th class="p-3">Kiosk</th><th class="p-3">Robot</th><th class="p-3">Voice</th><th class="p-3">多語</th><th class="p-3">API</th><th class="p-3">Multi-Agent</th><th class="p-3 text-left">觀察</th></tr></thead><tbody class="text-center"><tr class="border-t"><td class="p-3 text-left font-bold">A 餐飲品牌</td><td>●</td><td>●</td><td>●</td><td>－</td><td>－</td><td>－</td><td class="text-amber-600">△</td><td>－</td><td>－</td><td class="p-3 text-left text-slate-600">基礎文字客服，KB 品質是重點</td></tr><tr class="border-t"><td class="p-3 text-left font-bold">B 科技金控</td><td>●</td><td>●</td><td>●</td><td>－</td><td>－</td><td>●</td><td>●</td><td>●</td><td>－</td><td class="p-3 text-left text-slate-600">採用較深，可觀察 API 與語音穩定性</td></tr><tr class="border-t"><td class="p-3 text-left font-bold">C 百貨</td><td>●</td><td>●</td><td>－</td><td>●</td><td>●</td><td>●</td><td>●</td><td>－</td><td class="text-amber-600">△</td><td class="p-3 text-left text-slate-600">現場載具與語音體驗是主要觀測點</td></tr></tbody></table><div class="p-4 text-xs text-slate-500 bg-slate-50 border-t">圖例：● 有啟用且有使用；△ 有啟用但使用或設定不完整；－ 未啟用或無紀錄。</div></div>
+    </section>
 
-        // 0. Dashboard 區塊說明內容：定義 / 目的 / 判讀 / CS 行動
-        const purposeDocs = {
-            overview: { title: '客戶大盤總覽：CS 每日判斷入口', body: `<h4>數據目的</h4><p>整合專案狀態、使用量、知識庫新鮮度、硬體連線與異常訊號，讓 CS 在 30 秒內知道目前客戶池是否穩定。</p><h4>如何判讀</h4><ul><li>健康數下降或觀察/異常數上升，代表本週跟進壓力升高。</li><li>單一客戶互動量暴跌、KB 老化、硬體斷線同時出現時，應視為高優先級風險。</li></ul><h4>建議行動</h4><p>每天先看紅色異常，再看黃色觀察；若連續兩週惡化，需建立 ticket、通知客戶窗口並安排內部支援。</p>` },
-            'kpi-total': { title: '運營中專案總數', body: `<h4>數據目的</h4><p>表示目前 CS 團隊需要持續維護與追蹤的客戶/專案數量，是衡量服務負載的母數。</p><h4>如何判讀</h4><p>總數增加但健康比例不變，代表團隊承載穩定；總數增加且觀察/異常同步增加，代表 onboarding 或維運流程可能需要補強。</p><h4>建議行動</h4><p>搭配健康、觀察、異常比例排定 CS 人力，避免只用總客戶數判斷工作量。</p>` },
-            'kpi-healthy': { title: '健康運作中', body: `<h4>數據目的</h4><p>快速呈現目前沒有明顯使用下降、KB 老化或設備異常的客戶數。</p><h4>如何判讀</h4><p>健康不代表不用關注，而是可用較低頻率維繫；若健康客戶突然下降，要回查是用量、硬體、KB 或 issue 造成。</p><h4>建議行動</h4><p>針對健康客戶可安排成功案例收集、續約鋪陳或擴充需求探索。</p>` },
-            'kpi-watch': { title: '需觀察：老化 / 低活躍', body: `<h4>數據目的</h4><p>標記目前尚未故障，但已有流失或滿意度下降前兆的客戶。</p><h4>如何判讀</h4><ul><li>低活躍：可能導入卡住、使用者教育不足或需求不明確。</li><li>KB 老化：可能導致回答品質下降，進一步造成客戶不信任 AI。</li></ul><h4>建議行動</h4><p>主動約客戶檢查使用阻礙，確認是否要補教育訓練、補知識庫或調整服務場景。</p>` },
-            'kpi-critical': { title: '異常斷線中', body: `<h4>數據目的</h4><p>指出已影響服務可用性的客戶，通常需要立即處理。</p><h4>如何判讀</h4><p>斷線、心跳遺失、API 錯誤或硬體異常屬於高優先級，不能只等例行週會。</p><h4>建議行動</h4><p>立即開啟排障診斷，確認現場網路/電源/應用程式狀態，必要時升級為 ticket 並通知客戶窗口。</p>` },
-            'client-c': { title: 'C 百貨：硬體 / 網路異常風險', body: `<h4>數據目的</h4><p>這張卡整合互動量暴跌、KB 未更新與硬體心跳遺失，目的是讓 CS 看到「服務中斷」而不只是單一數字下降。</p><h4>如何判讀</h4><p>近 30 天互動量下降 45.2% 且無網路心跳超過 2 小時，應優先視為現場設備或網路問題，而不是使用者興趣下降。</p><h4>建議行動</h4><p>先走排障 SOP；若現場恢復後互動仍低，再檢查展示位置、導覽動線與 KB 內容。</p>` },
-            'client-b': { title: 'B 科技金控：高成長客戶', body: `<h4>數據目的</h4><p>標記導入中但使用量快速成長的客戶，協助 CS/PM 及早辨識擴充與續約機會。</p><h4>如何判讀</h4><p>摘要數增加 124.5% 且語者註冊增加，代表客戶內部 adoption 正在擴散；但也要同步觀察成本、權限與 prompt 管理。</p><h4>建議行動</h4><p>安排成功回顧，確認下一批使用部門、用量方案與資安/權限需求。</p>` },
-            'client-a': { title: 'A 餐飲品牌：POC 停滯與 KB 風險', body: `<h4>數據目的</h4><p>這張卡用來辨識 POC 客戶是否因知識庫不足或兜底率升高而卡住。</p><h4>如何判讀</h4><p>互動總量持平但兜底率升高，代表使用者仍有需求，但 AI 沒有答好；若 KB 120 天未更新，應優先處理內容品質。</p><h4>建議行動</h4><p>把高頻兜底問題轉成補 KB 清單，並與客戶確認菜單、優惠、外送、兒童椅等營運資訊。</p>` },
-            'metric-interactions': { title: '近 30 天互動量 / 互動句數', body: `<h4>數據目的</h4><p>衡量客戶服務被實際使用的程度，是導入成效與流失風險的核心訊號。</p><h4>如何判讀</h4><ul><li>上升：可能是 adoption 成功，也可能是異常問題造成大量詢問。</li><li>下降：可能是設備故障、入口不明顯、客戶內部推廣不足或場景價值下降。</li></ul><h4>建議行動</h4><p>不要只看升降，要搭配兜底率、硬體心跳、KB 更新與 issue 數一起判斷。</p>` },
-            'metric-kb-age': { title: '知識庫更新狀態 / KB 老化', body: `<h4>數據目的</h4><p>追蹤客戶知識內容是否仍符合現況。KB 太久未更新容易造成回答錯誤、幻覺或客戶不信任。</p><h4>如何判讀</h4><p>超過 60 天需提醒；超過 90 天且兜底率升高應列為風險；若是餐飲、零售、活動型客戶，更新週期應更短。</p><h4>建議行動</h4><p>請客戶補最新營業資訊、活動、FAQ，或由 CS 依高頻無效回答整理 KB 更新建議。</p>` },
-            'metric-device-heartbeat': { title: '硬體連線狀態 / 心跳', body: `<h4>數據目的</h4><p>確認 Kiosk、機器人或現場端應用是否持續在線，是判斷服務可用性的第一層訊號。</p><h4>如何判讀</h4><p>心跳中斷超過門檻通常代表網路、電源、設備休眠或程式崩潰，不應只解讀為使用者變少。</p><h4>建議行動</h4><p>優先通知現場窗口確認電源與網路，再請內部工程確認應用程式 log。</p>` },
-            'metric-meeting-summary': { title: '生成會議摘要數', body: `<h4>數據目的</h4><p>衡量 SecureMeet 類型服務的實際產出量，能代表客戶內部採用與價值感。</p><h4>如何判讀</h4><p>快速上升通常是導入成功；若上升伴隨客訴或成本異常，需檢查使用規則、權限與 token 成本。</p><h4>建議行動</h4><p>主動與客戶確認是否需要擴充部門、教育訓練或調整方案。</p>` },
-            'metric-speaker': { title: '語者辨識註冊數', body: `<h4>數據目的</h4><p>反映會議服務是否從少數測試者擴散到更多真實使用者。</p><h4>如何判讀</h4><p>註冊數增加代表 adoption 擴散；若摘要數增加但註冊數不動，可能集中在少數重度使用者。</p><h4>建議行動</h4><p>請 PM/CS 確認下一批導入名單與部門推廣節奏。</p>` },
-            'metric-prompt': { title: 'Prompt 模板修改', body: `<h4>數據目的</h4><p>追蹤客戶或內部團隊是否正在調整 AI 行為設定，作為導入活躍度與風險訊號。</p><h4>如何判讀</h4><p>頻繁修改可能代表積極優化，也可能表示需求尚未穩定；長期未修改則可能表示無人維護。</p><h4>建議行動</h4><p>若修改頻繁，建議建立版本紀錄與 regression test；若長期未維護，安排健康檢查。</p>` },
-            'metric-message-volume': { title: '近 30 天互動總句數', body: `<h4>數據目的</h4><p>衡量文字客服場景的需求量與使用者觸及程度。</p><h4>如何判讀</h4><p>持平不一定健康；若同時兜底率上升，代表需求仍在但回答品質下降。</p><h4>建議行動</h4><p>搭配熱門意圖與兜底清單判斷要補 KB、改 prompt 還是調整入口文案。</p>` },
-            'metric-fallback': { title: '兜底回答率 Fallback', body: `<h4>數據目的</h4><p>衡量 AI 無法回答或信心不足的比例，是 KB 缺口與 prompt 邊界問題的重要指標。</p><h4>如何判讀</h4><p>兜底率上升通常代表使用者問題超出現有知識庫，或檢索/關鍵詞命中不佳。</p><h4>建議行動</h4><p>優先整理高頻兜底問題，轉成 KB 補充、同義詞/勘誤詞或 prompt fallback policy 調整。</p>` },
-            'intent-chart': { title: '熱門意圖分佈', body: `<h4>數據目的</h4><p>把大量對話歸類成需求主題，讓 CS 知道客戶的使用者最常問什麼。</p><h4>如何判讀</h4><p>高頻意圖代表高價值內容區；若高頻意圖同時高兜底，代表最該優先補 KB。</p><h4>建議行動</h4><p>每週檢查 Top Intent，轉成客戶週報、KB 更新建議與產品需求洞察。</p>` },
-            'fallback-table': { title: '高頻無效回答清單', body: `<h4>數據目的</h4><p>直接列出 AI 沒答好的使用者原始問題，協助 CS 從「問題現象」追到「知識缺口」。</p><h4>如何判讀</h4><p>發生次數越高，代表越多使用者受到影響；若問題和營業資訊、價格、活動相關，通常需要客戶補資料。</p><h4>建議行動</h4><p>將高頻問題整理成 KB 更新任務，並標註需要客戶確認的欄位。</p>` },
-            'kb-table': { title: '全客戶 KB 健康度', body: `<h4>數據目的</h4><p>跨客戶追蹤 FAQ 數量、老化題數與最後維護日，用於預防回答品質下降。</p><h4>如何判讀</h4><p>FAQ 數多不代表品質好；老化比例高才是風險。POC 客戶若 KB 老化，會直接影響驗收與轉正。</p><h4>建議行動</h4><p>針對老化比例高的客戶發送更新提醒，必要時由 CS 先根據對話紀錄提出補 KB 草稿。</p>` },
+    <div id="purposeOverlay" class="purpose-overlay" onclick="closePurpose(event)"><div class="purpose-card" onclick="event.stopPropagation()"><div class="purpose-card-header"><div><p class="text-xs uppercase tracking-[0.18em] text-sky-200 font-black">Observation Purpose</p><h3 id="purposeTitle" class="text-xl font-black mt-1">說明</h3></div><button type="button" class="purpose-close" onclick="closePurpose(event)">×</button></div><div id="purposeBody" class="purpose-card-body"></div></div></div>
+  </main>
 
-            'device-total': { title: '展機總數', body: `<h4>數據目的</h4><p>表示目前需要被 CS/維運團隊監控的實體端點數，是估算巡檢負載與現場支援量的基礎。</p><h4>如何判讀</h4><p>總數增加時，若異常率也增加，代表部署標準或現場網路品質需要檢查。</p><h4>建議行動</h4><p>用總數搭配在線率、異常率與平均修復時間，評估是否需要建立定期巡檢排程。</p>` },
-            'device-online': { title: '在線正常', body: `<h4>數據目的</h4><p>追蹤目前可提供服務的設備數，直接影響現場服務可用性。</p><h4>如何判讀</h4><p>在線率若低於目標門檻，例如 95%，CS 應追查是單一客戶場域問題還是大範圍平台問題。</p><h4>建議行動</h4><p>對長期在線穩定的場域可降低人工巡檢頻率，把時間留給高風險場域。</p>` },
-            'device-warning': { title: '需現場確認', body: `<h4>數據目的</h4><p>標記尚未完全中斷，但已有延遲、低電量或短暫掉線的設備。</p><h4>如何判讀</h4><p>這類狀態是預防性維運重點；若不處理，通常會演變成離線或客訴。</p><h4>建議行動</h4><p>請現場窗口先做低成本確認：測速、插電、重啟、檢查設備位置。</p>` },
-            'device-offline': { title: '離線 / 異常', body: `<h4>數據目的</h4><p>指出已經無法提供正常服務的設備，是硬體維運最高優先級。</p><h4>如何判讀</h4><p>心跳中斷超過 2 小時應視為服務中斷，不應等待例行巡檢。</p><h4>建議行動</h4><p>立即開啟 SOP，確認網路、電源、應用程式與現場環境；仍未恢復則升級為 ticket。</p>` },
-            'device-table': { title: '設備清單與派工狀態', body: `<h4>數據目的</h4><p>把每台設備的地點、狀態、最後心跳、網路與建議動作放在同一張表，讓 CS 可以直接派工。</p><h4>如何判讀</h4><p>優先順序通常是離線 > 延遲高 > 電量低 > 正常巡檢。</p><h4>建議行動</h4><p>針對紅色列開 SOP；黃色列先請現場做快速確認；綠色列保留紀錄即可。</p>` },
-            'device-events': { title: '本週硬體事件', body: `<h4>數據目的</h4><p>用事件頻率判斷某個場域是否反覆出現相同問題，避免每次只做個案排除。</p><h4>如何判讀</h4><p>若延遲或心跳中斷反覆出現，代表可能是場域網路、電源配置或設備位置造成的結構性問題。</p><h4>建議行動</h4><p>超過門檻時建立長期改善 ticket，並在客戶週報中提出原因與建議。</p>` },
-            'device-map': { title: '展機地圖與硬體狀態', body: `<h4>數據目的</h4><p>集中查看 Kiosk / 機器人等實體端點的網路、電源、最後心跳與派工狀態。</p><h4>如何判讀</h4><p>若多台設備同地區同時異常，可能是場域網路；單台異常則可能是硬體或應用程式問題。</p><h4>建議行動</h4><p>未來可加入地圖、Ping 延遲、最後心跳、現場窗口與 SLA 倒數。</p>` },
-            'sop-panel': { title: '維運排障 SOP', body: `<h4>數據目的</h4><p>把異常訊號轉成標準處理流程，降低 CS 只看到紅燈但不知道下一步的落差。</p><h4>如何判讀</h4><p>SOP 先處理最可能且最容易排除的因素：網路、電源、場地、麥克風、應用程式版本。</p><h4>建議行動</h4><p>執行完成仍未恢復時，升級為 ticket 並附上已檢查項目，避免工程團隊重複追問。</p>` }
-        };
-
-        function openPurpose(evt, key) {
-            if (evt) evt.stopPropagation();
-            const doc = purposeDocs[key] || purposeDocs.overview;
-            document.getElementById('purposeTitle').innerText = doc.title;
-            document.getElementById('purposeBody').innerHTML = doc.body;
-            document.getElementById('purposeOverlay').classList.add('active');
-        }
-
-        function closePurpose(evt) {
-            if (evt) evt.stopPropagation();
-            document.getElementById('purposeOverlay').classList.remove('active');
-        }
-
-        document.addEventListener('keydown', (evt) => {
-            if (evt.key === 'Escape') closePurpose(evt);
-        });
-
-        // 1. 時間更新邏輯
-        function updateTime() {
-            const timeEl = document.getElementById('currentTime');
-            if (timeEl) {
-                const now = new Date();
-                timeEl.innerText = now.toLocaleString('zh-TW', { hour12: false });
-            }
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        // 2. 頁籤切換邏輯
-        function switchTab(tabId) {
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-md');
-                btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
-            });
-            event.currentTarget.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
-            event.currentTarget.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
-
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-
-            const titles = {
-                'tab-overview': '客戶大盤總覽 <span class="text-sm font-medium text-slate-400 ml-2">本月健康度與趨勢追蹤</span>',
-                'tab-intent': '對話與意圖分析',
-                'tab-kb': '全客戶知識庫 (KB) 管理',
-                'tab-device': '展機與硬體狀態'
-            };
-            document.getElementById('pageTitle').innerHTML = titles[tabId];
-        }
-
-        // 3. 診斷面板 UI 邏輯
-        const panel = document.getElementById('diagnosticPanel');
-        const diagTitle = document.getElementById('diagClientName');
-
-        function openDiagnostic(clientId) {
-            panel.classList.remove('hidden');
-            void panel.offsetWidth; 
-            panel.classList.remove('panel-slide-enter', 'panel-slide-leave');
-            panel.classList.add('panel-slide-active');
-            
-            if(clientId === 'client-c') {
-                diagTitle.innerText = "目標：C 百貨 1F 導覽機器人 (硬體/網路異常)";
-            }
-        }
-
-        function closeDiagnostic() {
-            panel.classList.remove('panel-slide-active');
-            panel.classList.add('panel-slide-leave');
-            setTimeout(() => {
-                panel.classList.add('hidden');
-                panel.classList.remove('panel-slide-leave');
-                panel.classList.add('panel-slide-enter');
-            }, 300);
-        }
-
-        // 4. 圖表渲染邏輯 (加入充滿股市風格的區塊圖)
-        let chartsInitialized = false;
-        function initCharts() {
-            if (typeof Chart === 'undefined') {
-                setTimeout(initCharts, 100);
-                return;
-            }
-            if(chartsInitialized) return;
-
-            // 股市看盤風格設定 (隱藏軸線、加入漸層填充以強化視覺感受)
-            const getSparklineConfig = (dataArray, colorHex) => ({
-                type: 'line',
-                data: {
-                    labels: Array.from({length: dataArray.length}, (_, i) => `Day ${i+1}`),
-                    datasets: [{
-                        data: dataArray,
-                        borderColor: colorHex,
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true,
-                        backgroundColor: (context) => {
-                            const ctx = context.chart.ctx;
-                            const gradient = ctx.createLinearGradient(0, 0, 0, 50);
-                            gradient.addColorStop(0, colorHex + '40'); // 帶透明度的顏色
-                            gradient.addColorStop(1, colorHex + '00'); // 完全透明
-                            return gradient;
-                        },
-                        pointRadius: 0,
-                        pointHoverRadius: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                    scales: { x: { display: false }, y: { display: false, min: Math.min(...dataArray) * 0.9 } },
-                    layout: { padding: 0 }
-                }
-            });
-
-            // Client C: 暴跌趨勢 (Red)
-            const ctxC = document.getElementById('sparkTrendC');
-            if(ctxC) new Chart(ctxC.getContext('2d'), getSparklineConfig([400, 380, 410, 390, 350, 200, 50], '#ef4444'));
-
-            // Client B: 強烈成長 (Emerald)
-            const ctxB = document.getElementById('sparkTrendB');
-            if(ctxB) new Chart(ctxB.getContext('2d'), getSparklineConfig([120, 130, 150, 180, 220, 280, 428], '#10b981'));
-
-            // Client A: 停滯/微幅下降 (Slate/Neutral)
-            const ctxA = document.getElementById('sparkTrendA');
-            if(ctxA) new Chart(ctxA.getContext('2d'), getSparklineConfig([600, 610, 580, 590, 605, 570, 560], '#94a3b8'));
-
-            // 意圖分析長條圖
-            const ctxIntent = document.getElementById('intentChart');
-            if(ctxIntent) {
-                new Chart(ctxIntent.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: ['詢問菜單/價格', '營業時間確認', '客訴與建議', '尋找分店位置', '其他閒聊'],
-                        datasets: [{
-                            label: '觸發次數',
-                            data: [850, 420, 150, 310, 220],
-                            backgroundColor: '#3b82f6',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: { y: { beginAtZero: true } }
-                    }
-                });
-            }
-            chartsInitialized = true;
-        }
-
-        initCharts();
-    </script>
+  <script>
+    function updateTime(){ document.getElementById('currentTime').innerText = new Date().toLocaleString('zh-TW',{hour12:false}); }
+    setInterval(updateTime,1000); updateTime();
+    const titles={ 'tab-overview':'產品使用總覽','tab-quality':'AI 回答品質','tab-kb':'KB 與角色設定','tab-channel':'載具 / 語音 / 系統狀態','tab-adoption':'功能採用成熟度' };
+    function switchTab(btn){ const tabId=btn.dataset.tab; document.querySelectorAll('.nav-btn').forEach(b=>{b.className='nav-btn w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg font-medium transition-all text-left';}); btn.className='nav-btn active w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium shadow-md transition-all text-left'; document.querySelectorAll('.tab-content').forEach(s=>s.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.getElementById('pageTitle').innerHTML = titles[tabId] + ' <button class="info-btn" onclick="openPurpose(event,\'dashboard-goal\')">?</button>'; initCharts(); }
+    const docs={
+      'dashboard-goal': ['Dashboard 目標', '<h4>想觀察什麼</h4><p>這份 Dashboard 是給 RD / PM / CS 對齊「AI AMAZE 客戶產品使用狀態」的概念頁，不是先做 CS CRM，也不是先設計複雜健康分。</p><h4>目標</h4><p>先確認應該記錄哪些事件、可視化哪些狀態、哪些指標能初步描述客戶是否真的使用產品。</p><h4>初步指標方向</h4><ul><li>有沒有啟用：專案與入口是否有實際互動。</li><li>用得如何：KB 命中、兜底、延遲、錯誤。</li><li>用到多深：Web、Kiosk、Robot、Voice、API、多語、Multi-Agent 等功能採用。</li></ul>'],
+      'overview-goal': ['產品使用總覽觀測目標', '<h4>想觀察什麼</h4><p>客戶是否真的把 AI AMAZE 放進使用場景，而不是只建立專案或完成 Demo。</p><h4>初步指標</h4><p>專案總數、活躍專案、低活躍、無互動、近 7/30 天互動量、活躍使用者、入口來源。</p><h4>給 RD/PM 的溝通重點</h4><p>初期重點是定義「互動事件」「活躍專案」「入口來源」等資料欄位，先能看見使用狀態，再討論健康分數。</p>'],
+      'project-status': ['專案啟用狀態', '<h4>想觀察什麼</h4><p>客戶建立的專案是否有進入實際使用。</p><h4>目標</h4><p>分辨「已建立但未啟用」「測試中」「正式使用中」等狀態。</p><h4>初步指標</h4><p>專案總數、最近互動時間、近 7/30 天是否有互動、是否只有後台設定但沒有前台流量。</p>'],
+      'active-project': ['活躍專案', '<h4>想觀察什麼</h4><p>近期有前台互動或 API 使用的專案數。</p><h4>目標</h4><p>確認客戶使用是否持續，而不是只在導入初期產生一次性測試。</p><h4>初步指標</h4><p>近 7 天有互動、近 30 天有互動、互動量是否連續多日為 0。</p>'],
+      'low-activity': ['低活躍專案', '<h4>想觀察什麼</h4><p>已啟用但互動量明顯偏低的專案。</p><h4>目標</h4><p>找出入口曝光不足、使用者導流不足或產品未進入真實流程的情況。</p><h4>初步指標</h4><p>日均互動量、週互動量、活躍使用者數、入口來源是否單一。</p>'],
+      'no-usage': ['無互動專案', '<h4>想觀察什麼</h4><p>近 30 天沒有前台互動的專案。</p><h4>目標</h4><p>辨識建置完成但尚未上線、客戶停用、入口壞掉或測試結束的專案。</p><h4>初步指標</h4><p>最後互動時間、最後後台設定時間、是否曾有過使用高峰。</p>'],
+      'interaction-volume': ['互動量趨勢', '<h4>想觀察什麼</h4><p>使用者是否持續與 AI Agent 互動。</p><h4>目標</h4><p>互動量是產品是否進入真實服務場景的基礎指標。</p><h4>初步指標</h4><p>今日、近 7 天、近 30 天互動數，以及與前期相比的變化。</p>'],
+      'active-users': ['活躍使用者', '<h4>想觀察什麼</h4><p>互動是由多少不同使用者或 session 產生。</p><h4>目標</h4><p>避免只看總訊息數，卻不知道是少數人測試還是真實擴散。</p><h4>初步指標</h4><p>活躍使用者、新使用者、回訪使用者、活躍裝置數。</p>'],
+      'customer-usage-list': ['客戶使用狀態樣本', '<h4>想觀察什麼</h4><p>把每個客戶的使用量、入口、品質訊號放在同一張卡片中，讓 RD/PM 快速理解差異。</p><h4>目標</h4><p>不是算分，而是建立可討論的觀測欄位。</p><h4>初步指標</h4><p>互動量、入口、活躍使用者、KB 命中率、兜底率、最後互動時間。</p>'],
+      'channel-distribution': ['入口來源分布', '<h4>想觀察什麼</h4><p>客戶實際從哪些載具或入口使用 AI AMAZE。</p><h4>目標</h4><p>判斷客戶是只用 Web Chat，還是已採用 Kiosk、Robot、API、平板等跨載具能力。</p><h4>初步指標</h4><p>Web、Kiosk、Robot、API、Mobile/Tablet 的互動量與比例。</p>'],
+      'kb-hit-rate': ['KB 命中率', '<h4>想觀察什麼</h4><p>AI 回答是否有使用客戶知識庫。</p><h4>目標</h4><p>確認 AI AMAZE 的 RAG / KB 價值是否真正發揮。</p><h4>初步指標</h4><p>回答中有命中 KB 的比例、未命中比例、Top 命中知識、Top 未命中問題。</p>'],
+      'fallback-rate': ['兜底率 / 無答案率', '<h4>想觀察什麼</h4><p>AI 無法回答或觸發 fallback 的比例。</p><h4>目標</h4><p>找出知識庫覆蓋不足、Prompt 邊界不清或檢索不到內容的情況。</p><h4>初步指標</h4><p>兜底率、兜底次數、高頻兜底問題、兜底問題所屬意圖。</p>'],
+      'latency': ['回應速度與延遲', '<h4>想觀察什麼</h4><p>使用者從提問到得到回答需要等待多久。</p><h4>目標</h4><p>在 Kiosk、Robot、現場導覽等場景中，速度會直接影響體驗。</p><h4>初步指標</h4><p>平均回應時間、P95、RAG 檢索時間、LLM 生成時間、STT/TTS 耗時。</p>'],
+      'uncovered-questions': ['高頻未覆蓋問題', '<h4>想觀察什麼</h4><p>使用者常問但目前 KB 或 Prompt 沒有支援的內容。</p><h4>目標</h4><p>把對話紀錄轉成產品與知識庫改善輸入。</p><h4>初步指標</h4><p>未覆蓋問題數、發生次數、所屬意圖、是否需要客戶補資料。</p>'],
+      'intent-coverage': ['熱門意圖與覆蓋狀態', '<h4>想觀察什麼</h4><p>使用者最常想完成什麼，以及這些意圖是否被 KB 覆蓋。</p><h4>目標</h4><p>判斷產品服務情境是否符合真實需求。</p><h4>初步指標</h4><p>Top Intent、新興意圖、高兜底意圖、未覆蓋意圖。</p>'],
+      'uncovered-table': ['高頻未覆蓋問題表', '<h4>想觀察什麼</h4><p>保留使用者原始問題，讓 PM/RD 可以回看需求語境。</p><h4>目標</h4><p>避免只看分類後的統計，失去實際問題內容。</p><h4>初步指標</h4><p>原始提問、次數、可能原因、建議補資料或補設定方向。</p>'],
+      'kb-freshness': ['知識庫新鮮度', '<h4>想觀察什麼</h4><p>客戶知識庫是否持續被維護，內容是否可能過期。</p><h4>目標</h4><p>避免系統正常但知識過舊，導致 AI 回答不符合現況。</p><h4>初步指標</h4><p>最後更新時間、本月新增/修改 FAQ 數、超過 30/60/90 天未更新內容數。</p>'],
+      'prompt-completeness': ['角色 / Prompt 設定完整度', '<h4>想觀察什麼</h4><p>Agent 是否有清楚角色、服務範圍、語氣、禁止回答與 fallback 規則。</p><h4>目標</h4><p>讓 PM/RD 知道哪些設定需要結構化與檢查提示。</p><h4>初步指標</h4><p>角色名稱、服務範圍、語氣、禁止回答、多語規則、知識庫外引導方式是否存在。</p>'],
+      'device-online-rate': ['裝置在線率', '<h4>想觀察什麼</h4><p>Kiosk、Robot、平板等現場入口是否在線。</p><h4>目標</h4><p>避免把設備離線誤判為使用需求下降。</p><h4>初步指標</h4><p>在線率、最後心跳、心跳中斷時間、Ping 延遲。</p>'],
+      'stt-tts': ['語音 STT / TTS 狀態', '<h4>想觀察什麼</h4><p>語音輸入、語音辨識與語音播放是否穩定。</p><h4>目標</h4><p>現場服務若語音失敗，文字對話正常也不代表體驗健康。</p><h4>初步指標</h4><p>語音輸入次數、STT 成功率、STT 失敗率、TTS 播放次數、TTS 失敗率、平均辨識時間。</p>'],
+      'system-events': ['系統錯誤與異常事件', '<h4>想觀察什麼</h4><p>AI AMAZE 服務鏈路哪一層發生錯誤。</p><h4>目標</h4><p>先把錯誤分類，讓 RD/PM 知道問題在前台、API、RAG、LLM、STT/TTS 或裝置。</p><h4>初步指標</h4><p>API error、timeout、RAG no result、LLM error、STT failed、TTS failed、Widget load failed、心跳遺失。</p>'],
+      'device-table': ['載具與硬體狀態表', '<h4>想觀察什麼</h4><p>各入口與裝置是否能提供服務。</p><h4>目標</h4><p>把載具狀態納入產品使用判讀，而不是只看總互動量。</p><h4>初步指標</h4><p>入口類型、在線狀態、最後心跳、Ping、現場設備事件。</p>'],
+      'feature-adoption': ['功能採用矩陣', '<h4>想觀察什麼</h4><p>客戶實際使用了哪些 AI AMAZE 產品能力。</p><h4>目標</h4><p>判斷客戶採用深度：只用基本 Web Chat，或已使用 KB、Prompt、語音、多語、API、Kiosk、Robot、Multi-Agent。</p><h4>初步指標</h4><p>每項功能是否啟用、是否有實際使用紀錄、最近一次使用時間。</p>']
+    };
+    function openPurpose(evt,key){ if(evt) evt.stopPropagation(); const d=docs[key]||docs['dashboard-goal']; document.getElementById('purposeTitle').innerText=d[0]; document.getElementById('purposeBody').innerHTML=d[1]; document.getElementById('purposeOverlay').classList.add('active'); }
+    function closePurpose(evt){ if(evt) evt.stopPropagation(); document.getElementById('purposeOverlay').classList.remove('active'); }
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePurpose(e); });
+    let chartsInitialized=false;
+    function initCharts(){ if(chartsInitialized || typeof Chart==='undefined') return; const ch=document.getElementById('channelChart'); if(ch) new Chart(ch,{type:'doughnut',data:{labels:['Web Widget','Kiosk','Robot','API','Mobile/Tablet'],datasets:[{data:[42,24,11,15,8],backgroundColor:['#2563eb','#10b981','#f59e0b','#8b5cf6','#64748b'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}}); const it=document.getElementById('intentChart'); if(it) new Chart(it,{type:'bar',data:{labels:['營業資訊','導覽/位置','活動/優惠','帳務/權限','其他'],datasets:[{label:'總次數',data:[850,620,340,180,220],backgroundColor:'#3b82f6',borderRadius:6},{label:'未覆蓋',data:[80,55,120,30,75],backgroundColor:'#f59e0b',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}}); chartsInitialized=true; }
+    window.addEventListener('load',()=>setTimeout(initCharts,200));
+  </script>
 </body>
 </html>
