@@ -34,8 +34,8 @@
     </div>
     <div class="px-5 pt-5">
       <div class="bg-blue-500/10 border border-blue-400/30 rounded-xl p-3 text-xs leading-relaxed text-blue-100">
-        <b class="text-white">給 RD / PM 的討論版</b><br>
-        這版把說明直接放在區塊內，減少點擊。先談觀測目的與資料欄位，不先談複雜算法。
+        <b class="text-white">PM / 主管檢視版</b><br>
+        本頁彙整 AI AMAZE 客戶產品使用狀態的核心觀測面向，協助 PM 與主管評估資料可視化優先順序。
       </div>
     </div>
     <nav class="flex-1 p-4 space-y-2" id="navMenu">
@@ -54,7 +54,7 @@
     <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center shrink-0 z-10">
       <div>
         <h2 id="pageTitle" class="text-2xl font-black text-slate-800">指標優先級</h2>
-        <p class="text-sm text-slate-500 mt-1">先做最能回答「有沒有用、用得穩不穩、資料是否可改善」的觀測</p>
+        <p class="text-sm text-slate-500 mt-1">AI AMAZE 客戶產品使用狀態觀測與指標優先順序</p>
       </div>
       <div class="flex items-center gap-3">
         <span class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md text-sm font-medium" id="currentTime">載入中...</span>
@@ -65,14 +65,14 @@
     <section id="tab-priority" class="tab-content active flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
       <div class="bg-gradient-to-r from-slate-950 to-blue-900 text-white rounded-3xl p-7 mb-6 shadow-sm soft-grid">
         <p class="text-blue-200 text-xs uppercase tracking-[0.18em] font-black">Dashboard Scope</p>
-        <h3 class="text-3xl font-black mt-2">先用 P0 / P1 / P2 對齊開發順序</h3>
-        <p class="text-sm text-slate-200 mt-3 max-w-4xl leading-relaxed">這個 Dashboard 的第一階段不是建立精準健康分，而是讓 RD / PM 先知道哪些資料最該被記錄、哪些狀態最該先被看見。越前面的優先級，越接近「不用複雜算法也能立即幫助判斷產品使用狀態」。</p>
+        <h3 class="text-3xl font-black mt-2">以 P0 / P1 / P2 排定產品觀測指標優先級</h3>
+        <p class="text-sm text-slate-200 mt-3 max-w-4xl leading-relaxed">本 Dashboard 以產品使用狀態追蹤為核心，依照可落地性與管理決策價值分為 P0 / P1 / P2。優先級越前面，越適合先納入產品資料紀錄與例行檢視。</p>
       </div>
 
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
         <div class="priority-card bg-emerald-50 border-emerald-200">
-          <div class="flex items-center justify-between"><h3 class="text-xl font-black text-emerald-950">P0：先確認有沒有使用</h3><span class="badge bg-emerald-600 text-white">先做</span></div>
-          <p class="mt-3 text-sm text-emerald-900 leading-relaxed">最基本、最穩定、最容易從系統事件取得。用來回答：客戶是否真的啟用 AI AMAZE？近期有沒有流量？主要從哪個入口使用？</p>
+          <div class="flex items-center justify-between"><h3 class="text-xl font-black text-emerald-950">P0：確認客戶是否持續使用</h3><span class="badge bg-emerald-600 text-white">先做</span></div>
+          <p class="mt-3 text-sm text-emerald-900 leading-relaxed">以最基礎且容易取得的系統事件，掌握客戶是否持續啟用 AI AMAZE、近期是否有流量，以及主要使用入口。</p>
           <div class="mt-4 space-y-3">
             <div class="bg-white/80 rounded-xl p-3 border border-emerald-200"><b>活躍專案 / 無互動專案</b><p class="text-xs mt-1 text-slate-600">近 7 / 30 天是否有前台互動或 API 呼叫。</p></div>
             <div class="bg-white/80 rounded-xl p-3 border border-emerald-200"><b>互動量與趨勢</b><p class="text-xs mt-1 text-slate-600">每日、近 7 天、近 30 天訊息數或 session 數。</p></div>
@@ -81,30 +81,30 @@
           </div>
         </div>
         <div class="priority-card bg-blue-50 border-blue-200">
-          <div class="flex items-center justify-between"><h3 class="text-xl font-black text-blue-950">P1：再確認使用是否健康</h3><span class="badge bg-blue-600 text-white">第二階段</span></div>
-          <p class="mt-3 text-sm text-blue-900 leading-relaxed">當 P0 能看見使用量後，再補上粗粒度品質訊號。目標是找出「有使用，但體驗可能不好」的情況。</p>
+          <div class="flex items-center justify-between"><h3 class="text-xl font-black text-blue-950">P1：確認使用體驗是否穩定</h3><span class="badge bg-blue-600 text-white">第二階段</span></div>
+          <p class="mt-3 text-sm text-blue-900 leading-relaxed">在掌握使用量後，加入基礎品質訊號，協助辨識已使用但體驗可能受 KB、回應速度或語音穩定性影響的客戶。</p>
           <div class="mt-4 space-y-3">
-            <div class="bg-white/80 rounded-xl p-3 border border-blue-200"><b>KB 命中率</b><p class="text-xs mt-1 text-slate-600">回答是否有使用知識庫；先看比例，不急著做準確度評分。</p></div>
+            <div class="bg-white/80 rounded-xl p-3 border border-blue-200"><b>KB 命中率</b><p class="text-xs mt-1 text-slate-600">回答是否有使用知識庫；以命中比例作為基礎品質訊號。</p></div>
             <div class="bg-white/80 rounded-xl p-3 border border-blue-200"><b>兜底率 / 無答案率</b><p class="text-xs mt-1 text-slate-600">AI 無法回答的比例；可先用 fallback 事件統計。</p></div>
             <div class="bg-white/80 rounded-xl p-3 border border-blue-200"><b>回應時間</b><p class="text-xs mt-1 text-slate-600">平均與 P95 延遲，尤其適合 Kiosk / Robot / 語音場景。</p></div>
             <div class="bg-white/80 rounded-xl p-3 border border-blue-200"><b>STT / TTS 成功率</b><p class="text-xs mt-1 text-slate-600">語音場景是否穩定；暫時只看成功 / 失敗事件。</p></div>
           </div>
         </div>
         <div class="priority-card bg-slate-50 border-slate-300">
-          <div class="flex items-center justify-between"><h3 class="text-xl font-black text-slate-950">P2：成熟後再做探索</h3><span class="badge bg-slate-700 text-white">後面做</span></div>
-          <p class="mt-3 text-sm text-slate-700 leading-relaxed">這些很有價值，但資料定義與分類成熟度較高，先放後面，避免第一版討論過度複雜。</p>
+          <div class="flex items-center justify-between"><h3 class="text-xl font-black text-slate-950">P2：進階產品洞察與改善線索</h3><span class="badge bg-slate-700 text-white">後面做</span></div>
+          <p class="mt-3 text-sm text-slate-700 leading-relaxed">此類指標具備產品改善價值，但需要較成熟的分類、聚類或人工校正流程，建議作為後續產品洞察模組規劃。</p>
           <div class="mt-4 space-y-3">
-            <div class="bg-white rounded-xl p-3 border border-slate-200"><b>熱門意圖與覆蓋狀態</b><p class="text-xs mt-1 text-slate-600">需要意圖分類規則穩定後再上，不作為初版核心。</p></div>
-            <div class="bg-white rounded-xl p-3 border border-slate-200"><b>高頻未覆蓋問題</b><p class="text-xs mt-1 text-slate-600">需要問題聚類與人工校正，先當探索分析。</p></div>
-            <div class="bg-white rounded-xl p-3 border border-slate-200"><b>功能採用成熟度</b><p class="text-xs mt-1 text-slate-600">等啟用/使用事件定義穩定後，再做矩陣與成熟度討論。</p></div>
-            <div class="bg-white rounded-xl p-3 border border-slate-200"><b>多語品質分布</b><p class="text-xs mt-1 text-slate-600">多語問句與回覆品質判定較複雜，先保留為後續方向。</p></div>
+            <div class="bg-white rounded-xl p-3 border border-slate-200"><b>熱門意圖與覆蓋狀態</b><p class="text-xs mt-1 text-slate-600">適合在意圖分類規則穩定後納入產品洞察。</p></div>
+            <div class="bg-white rounded-xl p-3 border border-slate-200"><b>高頻未覆蓋問題</b><p class="text-xs mt-1 text-slate-600">適合搭配問題聚類與人工校正，作為 KB 與產品改善線索。</p></div>
+            <div class="bg-white rounded-xl p-3 border border-slate-200"><b>功能採用成熟度</b><p class="text-xs mt-1 text-slate-600">在啟用與使用事件定義穩定後，可用於評估客戶採用深度。</p></div>
+            <div class="bg-white rounded-xl p-3 border border-slate-200"><b>多語品質分布</b><p class="text-xs mt-1 text-slate-600">可作為多語場景擴展後的品質觀測方向。</p></div>
           </div>
         </div>
       </div>
 
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
         <h3 class="text-lg font-black mb-3">第一版建議資料事件</h3>
-        <p class="text-sm text-slate-600 leading-relaxed mb-4">這些是與 RD / PM 溝通時最該先確認是否可記錄的事件。只要這些事件穩定，就能支撐 P0 / P1 的多數畫面。</p>
+        <p class="text-sm text-slate-600 leading-relaxed mb-4">以下事件可支撐 P0 / P1 多數畫面，建議納入產品資料紀錄與後續報表資料源盤點。</p>
         <div>
           <span class="data-pill"><i class="dot bg-emerald-500"></i> conversation_started</span>
           <span class="data-pill"><i class="dot bg-emerald-500"></i> message_sent</span>
@@ -122,11 +122,11 @@
 
     <section id="tab-overview" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
       <div class="grid grid-cols-2 xl:grid-cols-6 gap-4 mb-6">
-        <div class="metric-card"><p class="text-xs font-black text-slate-500">專案總數</p><div class="text-3xl font-black mt-1">18</div><div class="explain"><strong>觀察：</strong>有多少客戶專案存在。<br><strong>目標：</strong>作為啟用與互動判讀的母數。</div></div>
-        <div class="metric-card bg-emerald-50 border-emerald-200"><p class="text-xs font-black text-emerald-700">活躍專案</p><div class="text-3xl font-black text-emerald-900 mt-1">11</div><div class="explain"><strong>P0 指標。</strong>近 7 天有前台互動或 API 呼叫，代表客戶仍在使用。</div></div>
-        <div class="metric-card bg-amber-50 border-amber-200"><p class="text-xs font-black text-amber-700">低活躍</p><div class="text-3xl font-black text-amber-900 mt-1">4</div><div class="explain"><strong>觀察：</strong>已啟用但互動偏低。可先用簡單門檻，不急著演算法。</div></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">專案總數</p><div class="text-3xl font-black mt-1">18</div><div class="explain"><strong>觀察：</strong>有多少客戶專案存在。<br><strong>目標：</strong>作為啟用率、活躍率與互動狀態判讀的母數。</div></div>
+        <div class="metric-card bg-emerald-50 border-emerald-200"><p class="text-xs font-black text-emerald-700">活躍專案</p><div class="text-3xl font-black text-emerald-900 mt-1">11</div><div class="explain"><strong>P0 指標。</strong>近 7 天有前台互動或 API 呼叫，代表專案維持使用狀態。</div></div>
+        <div class="metric-card bg-amber-50 border-amber-200"><p class="text-xs font-black text-amber-700">低活躍</p><div class="text-3xl font-black text-amber-900 mt-1">4</div><div class="explain"><strong>觀察：</strong>已啟用但互動偏低，可用日均互動量或週互動量作為初步判斷門檻。</div></div>
         <div class="metric-card bg-red-50 border-red-200"><p class="text-xs font-black text-red-700">無互動</p><div class="text-3xl font-black text-red-900 mt-1">3</div><div class="explain"><strong>P0 指標。</strong>近 30 天沒有前台紀錄，需確認未上線、停用或入口失效。</div></div>
-        <div class="metric-card"><p class="text-xs font-black text-slate-500">近 30 天互動</p><div class="text-3xl font-black mt-1">42.8k</div><div class="explain"><strong>觀察：</strong>總互動趨勢。<br><strong>目標：</strong>先知道使用有沒有增加或下滑。</div></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">近 30 天互動</p><div class="text-3xl font-black mt-1">42.8k</div><div class="explain"><strong>觀察：</strong>總互動趨勢。<br><strong>目標：</strong>掌握使用趨勢是否增加、持平或下滑。</div></div>
         <div class="metric-card"><p class="text-xs font-black text-slate-500">活躍使用者</p><div class="text-3xl font-black mt-1">3,240</div><div class="explain"><strong>觀察：</strong>互動是否來自多個 user / session，而非少數測試。</div></div>
       </div>
 
@@ -134,44 +134,44 @@
         <div class="2xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-5">
           <div class="flex justify-between items-start gap-4 mb-4"><div><h3 class="text-lg font-black">客戶產品使用狀態樣本</h3><p class="text-sm text-slate-500 mt-1">把每個客戶的 P0/P1 訊號放在同一張卡上，讓 RD/PM 快速理解觀測欄位。</p></div><span class="badge bg-blue-50 text-blue-700">假資料</span></div>
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div class="border-t-4 border-red-400 rounded-xl bg-slate-50 p-4"><div class="flex justify-between gap-2"><h4 class="font-black text-slate-800">C 百貨 1F 導覽機器人</h4><span class="badge bg-red-100 text-red-700">使用中斷</span></div><p class="text-xs text-slate-500 mt-1">Robot / Kiosk 現場服務</p><div class="mt-4 space-y-2 text-sm"><div class="flex justify-between"><span>近 30 天互動</span><b class="text-red-600">1,245 ▼45%</b></div><div class="flex justify-between"><span>主要入口</span><b>Robot</b></div><div class="flex justify-between"><span>最後互動</span><b class="text-red-600">2 小時前</b></div><div class="flex justify-between"><span>KB 命中率</span><b>61%</b></div></div><div class="explain">互動量暴跌可能不是需求下降，而是現場入口或設備鏈路異常。需要同時看使用量與裝置心跳。</div></div>
+            <div class="border-t-4 border-red-400 rounded-xl bg-slate-50 p-4"><div class="flex justify-between gap-2"><h4 class="font-black text-slate-800">C 百貨 1F 導覽機器人</h4><span class="badge bg-red-100 text-red-700">使用中斷</span></div><p class="text-xs text-slate-500 mt-1">Robot / Kiosk 現場服務</p><div class="mt-4 space-y-2 text-sm"><div class="flex justify-between"><span>近 30 天互動</span><b class="text-red-600">1,245 ▼45%</b></div><div class="flex justify-between"><span>主要入口</span><b>Robot</b></div><div class="flex justify-between"><span>最後互動</span><b class="text-red-600">2 小時前</b></div><div class="flex justify-between"><span>KB 命中率</span><b>61%</b></div></div><div class="explain">互動量暴跌可能與現場入口或設備鏈路異常相關，需要同時檢視使用量與裝置心跳。</div></div>
             <div class="border-t-4 border-emerald-500 rounded-xl bg-slate-50 p-4"><div class="flex justify-between gap-2"><h4 class="font-black text-slate-800">B 科技金控內部會議室</h4><span class="badge bg-emerald-100 text-emerald-700">穩定成長</span></div><p class="text-xs text-slate-500 mt-1">Web / Voice / API</p><div class="mt-4 space-y-2 text-sm"><div class="flex justify-between"><span>近 30 天互動</span><b class="text-emerald-600">8,920 ▲124%</b></div><div class="flex justify-between"><span>主要入口</span><b>Web + API</b></div><div class="flex justify-between"><span>活躍使用者</span><b>412</b></div><div class="flex justify-between"><span>STT 成功率</span><b>94%</b></div></div><div class="explain">使用量與使用者同步增加，代表產品能力可能正在擴散到真實組織流程。</div></div>
             <div class="border-t-4 border-amber-400 rounded-xl bg-slate-50 p-4"><div class="flex justify-between gap-2"><h4 class="font-black text-slate-800">A 連鎖餐飲品牌客服</h4><span class="badge bg-amber-100 text-amber-700">品質觀察</span></div><p class="text-xs text-slate-500 mt-1">Web Widget / Line</p><div class="mt-4 space-y-2 text-sm"><div class="flex justify-between"><span>近 30 天互動</span><b>18,500 ▬</b></div><div class="flex justify-between"><span>主要入口</span><b>Web</b></div><div class="flex justify-between"><span>兜底率</span><b class="text-amber-700">15.4%</b></div><div class="flex justify-between"><span>KB 最後更新</span><b class="text-red-600">120 天前</b></div></div><div class="explain">互動量仍在，但回答品質與資料新鮮度可能拖累體驗。此類屬 P1 觀察。</div></div>
           </div>
         </div>
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5"><h3 class="text-lg font-black mb-2">入口來源分布</h3><p class="text-sm text-slate-500 leading-relaxed mb-4">P0：先確認各入口是否真的有流量。Web、Kiosk、Robot、API 的分布能協助判斷客戶採用的是哪種 AI AMAZE 能力。</p><div class="h-64"><canvas id="channelChart"></canvas></div></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5"><h3 class="text-lg font-black mb-2">入口來源分布</h3><p class="text-sm text-slate-500 leading-relaxed mb-4">P0：確認各入口是否有實際流量；Web、Kiosk、Robot、API 的分布可反映客戶採用的 AI AMAZE 能力。</p><div class="h-64"><canvas id="channelChart"></canvas></div></div>
       </div>
     </section>
 
     <section id="tab-kb" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-        <div class="metric-card bg-blue-50 border-blue-200"><p class="text-xs font-black text-blue-700">KB 命中率</p><div class="text-3xl font-black text-blue-950 mt-1">76%</div><div class="explain"><strong>P1 指標。</strong>回答是否有用到知識庫。初期只看 hit/miss，不先評估回答是否完美。</div></div>
+        <div class="metric-card bg-blue-50 border-blue-200"><p class="text-xs font-black text-blue-700">KB 命中率</p><div class="text-3xl font-black text-blue-950 mt-1">76%</div><div class="explain"><strong>P1 指標。</strong>回答是否有用到知識庫。以 hit/miss 作為基礎資料，觀察回答是否有使用知識庫。</div></div>
         <div class="metric-card bg-amber-50 border-amber-200"><p class="text-xs font-black text-amber-700">兜底率 / 無答案率</p><div class="text-3xl font-black text-amber-950 mt-1">11.8%</div><div class="explain"><strong>P1 指標。</strong>Fallback 過高代表 KB 缺口、檢索不到或角色邊界不清。</div></div>
-        <div class="metric-card"><p class="text-xs font-black text-slate-500">KB 最後更新時間</p><div class="text-3xl font-black mt-1">2 天 / 120 天</div><div class="explain"><strong>P0 指標。</strong>先確認是否長期未維護；不需要先做內容品質演算法。</div></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">KB 最後更新時間</p><div class="text-3xl font-black mt-1">2 天 / 120 天</div><div class="explain"><strong>P0 指標。</strong>確認是否長期未維護，作為知識內容老化風險的基礎訊號。</div></div>
       </div>
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 border-b border-slate-200 bg-slate-50"><h3 class="text-lg font-black">知識庫新鮮度與維護狀態</h3><p class="text-sm text-slate-500 mt-1">目的：先讓 RD/PM 對齊 KB 更新事件與版本資料是否被記錄。</p></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="text-left p-3">客戶</th><th class="text-left p-3">FAQ 數</th><th class="text-left p-3">最後更新</th><th class="text-left p-3">老化內容</th><th class="text-left p-3">觀察目標</th></tr></thead><tbody><tr class="border-t"><td class="p-3 font-bold">B 科技金控</td><td class="p-3">350</td><td class="p-3 text-emerald-600 font-bold">2 天前</td><td class="p-3">0</td><td class="p-3 text-slate-600">維持版本紀錄</td></tr><tr class="border-t bg-amber-50/50"><td class="p-3 font-bold">A 餐飲品牌</td><td class="p-3">128</td><td class="p-3 text-red-600 font-bold">120 天前</td><td class="p-3 text-red-600 font-bold">128</td><td class="p-3 text-slate-600">確認內容老化是否影響兜底率</td></tr><tr class="border-t"><td class="p-3 font-bold">C 百貨</td><td class="p-3">214</td><td class="p-3 text-amber-600 font-bold">65 天前</td><td class="p-3">72</td><td class="p-3 text-slate-600">與現場服務異常分開觀察</td></tr></tbody></table></div>
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5"><h3 class="text-lg font-black mb-2">角色 / Prompt 設定完整度</h3><p class="text-sm text-slate-500 leading-relaxed mb-4">目的：不是要自動評分 Prompt，而是確認哪些設定欄位需要被結構化記錄。</p><div class="space-y-3 text-sm"><div class="flex justify-between"><span>角色名稱</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>服務範圍</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>回答語氣</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>禁止回答範圍</span><b class="text-amber-600">部分缺少</b></div><div class="flex justify-between"><span>Fallback 規則</span><b class="text-amber-600">需補強</b></div><div class="flex justify-between"><span>多語規則</span><b class="text-red-600">未完整</b></div></div></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5"><h3 class="text-lg font-black mb-2">角色 / Prompt 設定完整度</h3><p class="text-sm text-slate-500 leading-relaxed mb-4">目的：盤點角色、服務範圍、語氣與 fallback 等設定欄位，建立可追蹤的設定完整度資料。</p><div class="space-y-3 text-sm"><div class="flex justify-between"><span>角色名稱</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>服務範圍</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>回答語氣</span><b class="text-emerald-600">已設定</b></div><div class="flex justify-between"><span>禁止回答範圍</span><b class="text-amber-600">部分缺少</b></div><div class="flex justify-between"><span>Fallback 規則</span><b class="text-amber-600">需補強</b></div><div class="flex justify-between"><span>多語規則</span><b class="text-red-600">未完整</b></div></div></div>
       </div>
     </section>
 
     <section id="tab-quality" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
-      <div class="bg-slate-900 text-white rounded-2xl p-6 mb-6"><h3 class="text-2xl font-black">AI 品質探索：先放後面，不作為第一版核心</h3><p class="text-sm text-slate-300 mt-2 leading-relaxed">依你的方向，熱門意圖與覆蓋狀態、高頻未覆蓋問題這些需要意圖分類、問題聚類或人工校正，成熟度較高。因此本區保留為 P2 探索，不放在第一版主指標。</p></div>
+      <div class="bg-slate-900 text-white rounded-2xl p-6 mb-6"><h3 class="text-2xl font-black">AI 品質探索：進階產品洞察模組</h3><p class="text-sm text-slate-300 mt-2 leading-relaxed">熱門意圖、覆蓋狀態與高頻未覆蓋問題可作為進階產品洞察，協助 PM 追蹤使用者需求、KB 缺口與產品改善機會。此類指標建議在基礎事件資料穩定後逐步導入。</p></div>
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5"><div class="flex justify-between"><h3 class="text-lg font-black">熱門意圖與覆蓋狀態</h3><span class="badge bg-slate-100 text-slate-600">P2 探索</span></div><p class="text-sm text-slate-500 mt-2 leading-relaxed">目的：了解使用者最常想完成什麼，但需要穩定的意圖分類規則。建議等 P0/P1 事件穩定後再做。</p><div class="h-72 mt-4"><canvas id="intentChart"></canvas></div></div>
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 border-b border-slate-200 bg-slate-50"><div class="flex justify-between"><h3 class="text-lg font-black">高頻未覆蓋問題</h3><span class="badge bg-slate-100 text-slate-600">P2 探索</span></div><p class="text-sm text-slate-500 mt-1">保留作未來 KB 改善輸入，但第一版不要求做完整聚類算法。</p></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="text-left p-3">問題樣本</th><th class="text-left p-3">次數</th><th class="text-left p-3">觀察方向</th></tr></thead><tbody><tr class="border-t"><td class="p-3 font-medium">母親節套餐有素食嗎？</td><td class="p-3 font-black">45</td><td class="p-3 text-slate-600">活動型 KB 缺口</td></tr><tr class="border-t"><td class="p-3 font-medium">支援外送平台查詢嗎？</td><td class="p-3 font-black">32</td><td class="p-3 text-slate-600">服務範圍未定義</td></tr><tr class="border-t"><td class="p-3 font-medium">日文問路時回答不完整</td><td class="p-3 font-black">18</td><td class="p-3 text-slate-600">多語 KB / Prompt 缺口</td></tr></tbody></table></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5"><div class="flex justify-between"><h3 class="text-lg font-black">熱門意圖與覆蓋狀態</h3><span class="badge bg-slate-100 text-slate-600">P2 探索</span></div><p class="text-sm text-slate-500 mt-2 leading-relaxed">目的：了解使用者最常想完成的任務，作為產品情境、KB 覆蓋與服務範圍調整依據。</p><div class="h-72 mt-4"><canvas id="intentChart"></canvas></div></div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 border-b border-slate-200 bg-slate-50"><div class="flex justify-between"><h3 class="text-lg font-black">高頻未覆蓋問題</h3><span class="badge bg-slate-100 text-slate-600">P2 探索</span></div><p class="text-sm text-slate-500 mt-1">作為 KB 改善與產品需求整理的輸入，可搭配後續問題聚類與人工校正流程。</p></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="text-left p-3">問題樣本</th><th class="text-left p-3">次數</th><th class="text-left p-3">觀察方向</th></tr></thead><tbody><tr class="border-t"><td class="p-3 font-medium">母親節套餐有素食嗎？</td><td class="p-3 font-black">45</td><td class="p-3 text-slate-600">活動型 KB 缺口</td></tr><tr class="border-t"><td class="p-3 font-medium">支援外送平台查詢嗎？</td><td class="p-3 font-black">32</td><td class="p-3 text-slate-600">服務範圍未定義</td></tr><tr class="border-t"><td class="p-3 font-medium">日文問路時回答不完整</td><td class="p-3 font-black">18</td><td class="p-3 text-slate-600">多語 KB / Prompt 缺口</td></tr></tbody></table></div>
       </div>
     </section>
 
     <section id="tab-system" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
-      <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-6"><h3 class="text-lg font-black">簡易系統狀態：先看是否影響使用判讀</h3><p class="text-sm text-slate-600 mt-2 leading-relaxed">系統狀態第一版不用做太細。只要能避免「設備離線或 API 失敗被誤判為客戶不用」即可。建議先收集少量穩定事件：裝置心跳、API timeout、STT/TTS 成功或失敗、平均回應時間。</p></div>
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 mb-6"><h3 class="text-lg font-black">簡易系統狀態：支援使用量判讀的穩定性訊號</h3><p class="text-sm text-slate-600 mt-2 leading-relaxed">系統狀態以支援使用量判讀為主，重點觀察裝置心跳、API timeout、STT/TTS 成功或失敗、平均回應時間，避免將入口或系統異常誤判為客戶使用意願下降。</p></div>
       <div class="grid grid-cols-1 xl:grid-cols-4 gap-4 mb-6">
-        <div class="metric-card"><p class="text-xs font-black text-slate-500">裝置在線率</p><div class="text-3xl font-black mt-2">92%</div><div class="explain">只看現場入口是否可服務；避免把離線當成需求下降。</div></div>
-        <div class="metric-card"><p class="text-xs font-black text-slate-500">平均回應時間</p><div class="text-3xl font-black mt-2">2.4s</div><div class="explain">先看平均 / P95 即可，不拆太多鏈路。</div></div>
-        <div class="metric-card"><p class="text-xs font-black text-slate-500">語音成功率</p><div class="text-3xl font-black mt-2">94%</div><div class="explain">STT/TTS 可先合併為語音成功率，降低第一版複雜度。</div></div>
-        <div class="metric-card"><p class="text-xs font-black text-slate-500">系統錯誤</p><div class="text-3xl font-black mt-2">27</div><div class="explain">先統計 error / timeout，不先做根因分析。</div></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">裝置在線率</p><div class="text-3xl font-black mt-2">92%</div><div class="explain">觀察現場入口是否可服務，支援使用量下降時的原因判讀。</div></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">平均回應時間</p><div class="text-3xl font-black mt-2">2.4s</div><div class="explain">以平均與 P95 延遲掌握使用者等待時間。</div></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">語音成功率</p><div class="text-3xl font-black mt-2">94%</div><div class="explain">合併觀察 STT/TTS 成功狀態，掌握語音場景穩定度。</div></div>
+        <div class="metric-card"><p class="text-xs font-black text-slate-500">系統錯誤</p><div class="text-3xl font-black mt-2">27</div><div class="explain">統計 error / timeout 數量，作為系統穩定性基礎訊號。</div></div>
       </div>
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 bg-slate-50 border-b"><h3 class="text-lg font-black">載具與硬體狀態簡表</h3><p class="text-sm text-slate-500 mt-1">僅保留會影響使用量判讀的資訊。</p></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-3 text-left">位置</th><th class="p-3 text-left">入口</th><th class="p-3 text-left">狀態</th><th class="p-3 text-left">最後心跳</th><th class="p-3 text-left">觀察重點</th></tr></thead><tbody><tr class="border-t bg-red-50/50"><td class="p-3 font-bold">C 百貨 1F</td><td class="p-3">Robot</td><td class="p-3 text-red-600 font-black">離線</td><td class="p-3">2 小時前</td><td class="p-3 text-slate-600">互動量下滑可能是入口中斷</td></tr><tr class="border-t bg-amber-50/40"><td class="p-3 font-bold">D 展館入口</td><td class="p-3">Kiosk</td><td class="p-3 text-amber-600 font-black">延遲高</td><td class="p-3">4 分鐘前</td><td class="p-3 text-slate-600">速度可能影響現場體驗</td></tr><tr class="border-t"><td class="p-3 font-bold">B 金控 12F</td><td class="p-3">Web + API</td><td class="p-3 text-emerald-600 font-black">正常</td><td class="p-3">30 秒前</td><td class="p-3 text-slate-600">API 使用代表系統整合採用</td></tr></tbody></table></div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"><div class="p-5 bg-slate-50 border-b"><h3 class="text-lg font-black">載具與硬體狀態簡表</h3><p class="text-sm text-slate-500 mt-1">保留與使用量判讀直接相關的入口狀態資訊。</p></div><table class="w-full text-sm"><thead class="bg-slate-100 text-slate-600"><tr><th class="p-3 text-left">位置</th><th class="p-3 text-left">入口</th><th class="p-3 text-left">狀態</th><th class="p-3 text-left">最後心跳</th><th class="p-3 text-left">觀察重點</th></tr></thead><tbody><tr class="border-t bg-red-50/50"><td class="p-3 font-bold">C 百貨 1F</td><td class="p-3">Robot</td><td class="p-3 text-red-600 font-black">離線</td><td class="p-3">2 小時前</td><td class="p-3 text-slate-600">互動量下滑可能是入口中斷</td></tr><tr class="border-t bg-amber-50/40"><td class="p-3 font-bold">D 展館入口</td><td class="p-3">Kiosk</td><td class="p-3 text-amber-600 font-black">延遲高</td><td class="p-3">4 分鐘前</td><td class="p-3 text-slate-600">速度可能影響現場體驗</td></tr><tr class="border-t"><td class="p-3 font-bold">B 金控 12F</td><td class="p-3">Web + API</td><td class="p-3 text-emerald-600 font-black">正常</td><td class="p-3">30 秒前</td><td class="p-3 text-slate-600">API 使用代表系統整合採用</td></tr></tbody></table></div>
     </section>
   </main>
 
