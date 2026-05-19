@@ -2,6 +2,8 @@ const state = {
   isLoggedIn: false,
   activeTab: "home",
   isRecording: false,
+  isAssistantListening: false,
+  privacyAccepted: false,
   isMapView: false,
   regStep: 0,
   favoriteIds: [1],
@@ -11,6 +13,10 @@ const state = {
     company: "",
     title: "",
     passcode: "",
+    interests: [],
+    goals: [],
+    visitStyle: "",
+    budget: "",
   },
 };
 
@@ -26,10 +32,18 @@ const mockMatches = [
   { id: 2, exhibitor: "日月光 ASE", status: "accepted", time: "明日 14:30", message: "已接受您的洽談邀請" },
 ];
 
-const mockSchedule = [
-  { id: 1, title: "台積電 洽談會議", time: "2026/09/03 10:30", location: "Hall 1 洽談室 A", type: "實體" },
-  { id: 2, title: "大會 AI 趨勢論壇", time: "2026/09/03 13:00", location: "主舞台", type: "論壇" },
-  { id: 3, title: "聯電 線上展示", time: "2026/09/04 09:00", location: "線上會議室", type: "線上" },
+const expoEvents = [
+  { id: 1, title: "AI 半導體趨勢開幕論壇", time: "2026/09/03 09:30", location: "主舞台", type: "演講", host: "AMAZEXPO 大會" },
+  { id: 2, title: "先進封裝供應鏈工作坊", time: "2026/09/03 11:00", location: "Workshop Room B", type: "工作坊", host: "日月光 ASE" },
+  { id: 3, title: "車用晶片驗證實務講座", time: "2026/09/03 15:00", location: "Hall 2 會議室 C", type: "講座", host: "聯電 UMC" },
+  { id: 4, title: "採購媒合交流酒會", time: "2026/09/03 17:30", location: "Lounge A", type: "活動", host: "主辦單位" },
+  { id: 5, title: "AI 晶片測試技術 Demo", time: "2026/09/04 10:00", location: "D03 攤位", type: "展示", host: "京元電子 KYEC" },
+];
+
+const personalSchedule = [
+  { id: 101, title: "台積電 洽談會議", time: "2026/09/03 10:30", location: "Hall 1 洽談室 A", type: "實體" },
+  { id: 102, title: "日月光 MATCH 會議", time: "2026/09/03 14:30", location: "媒合中心 2", type: "媒合" },
+  { id: 103, title: "聯電 線上展示", time: "2026/09/04 09:00", location: "線上會議室", type: "線上" },
 ];
 
 const tags = ["全部", "AI 推薦", "半導體", "智慧製造", "綠能永續"];
@@ -50,28 +64,30 @@ function escapeHtml(value) {
 
 function getAIMessage() {
   if (!state.isLoggedIn) {
-    if (state.regStep === 0) return "您好！我是大會 AI 助理。請點擊麥克風，用說的告訴我您的「姓名、公司與職稱」，我來幫您填表。";
-    if (state.regStep === 1) return "資料已抓取！請再次點擊麥克風說「確認」，我將為您生成現場免票券的通關密語。";
+    if (!state.privacyAccepted) return "開始前，我會先說明本 demo 假裝蒐集哪些資料。請閱讀隱私權聲明後再開始語音註冊。";
+    if (state.regStep === 0) return "您好！請點擊麥克風，用說的告訴我您的「姓名、公司與職稱」，我來幫您填表。";
+    if (state.regStep === 1) return "資料已抓取！接著請說出您感興趣的產業、採購目標與偏好的逛展方式，我會建立推薦標籤。";
+    if (state.regStep === 2) return "偏好已建立。我已為您產生初步推薦條件，請再點一次麥克風說「確認」，我將生成現場免票券通關密語。";
     return "太棒了！您的通關密語是「白日依山盡」。現場只要報電話末五碼加這句密語即可極速通關！點擊下方按鈕進入平台吧。";
   }
+
+  if (state.isAssistantListening) return "我正在收音中。您可以說「幫我找先進封裝展商」或「安排明天上午的工作坊」。";
 
   if (state.activeTab === "home") {
     return state.isMapView
       ? "正在為您顯示展場平面地圖！您可以點擊攤位格子，直接查看該展商資訊喔。"
-      : `歡迎回來，${state.userData.name}！想找特定的展商，還是需要我為您導覽展場地圖？`;
+      : `歡迎回來，${state.userData.name}！我已依據您的興趣推薦半導體、先進封裝與 AI 晶片測試相關展商。`;
   }
 
   if (state.activeTab === "favorites") return "這些是您收藏的關注展商，需要我幫您直接發送 MATCH 邀請給他們嗎？";
   if (state.activeTab === "match") return `您目前有 ${mockMatches.filter((match) => match.status === "pending").length} 個待確認的媒合邀請。AI 已根據您的興趣優化了推薦名單。`;
-  if (state.activeTab === "schedule") return `您已排定 ${mockSchedule.length} 個行程。下一個行程是明日 10:30 的台積電洽談。`;
-  if (state.activeTab === "profile") return "在這裡可以更新您的需求標籤。資料越完整，AI 推薦的展商會越精準喔！";
+  if (state.activeTab === "schedule") return `這裡整合大會行事曆與您的個人行程。下一個個人行程是 9/3 10:30 的台積電洽談。`;
+  if (state.activeTab === "profile") return "在這裡可以更新您的需求標籤。資料越完整，AI 推薦的展商、活動與工作坊會越精準喔！";
   return "有什麼我可以幫忙的嗎？";
 }
 
 function refreshIcons() {
-  if (window.lucide) {
-    window.lucide.createIcons();
-  }
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function render() {
@@ -81,15 +97,37 @@ function render() {
 }
 
 function renderLogin() {
-  const passcode = state.regStep === 2
+  if (!state.privacyAccepted) return renderPrivacy();
+
+  const preferenceSummary = state.regStep >= 2
+    ? `<div class="preference-card">
+        <div class="preference-title">${icon("sparkles", 16)} AI 偏好摘要</div>
+        <div class="chip-row compact">
+          ${state.userData.interests.map((item) => `<span class="chip primary">${escapeHtml(item)}</span>`).join("")}
+          ${state.userData.goals.map((item) => `<span class="chip">${escapeHtml(item)}</span>`).join("")}
+        </div>
+        <dl class="preference-list">
+          <div><dt>逛展方式</dt><dd>${escapeHtml(state.userData.visitStyle)}</dd></div>
+          <div><dt>預算區間</dt><dd>${escapeHtml(state.userData.budget)}</dd></div>
+        </dl>
+      </div>`
+    : "";
+
+  const passcode = state.regStep === 3
     ? `<div class="field">
         <label>現場通關密語</label>
         <div class="passcode-card">${escapeHtml(state.userData.passcode)}</div>
       </div>`
     : "";
 
-  const action = state.regStep < 2
-    ? `<button class="voice-button ${state.isRecording ? "is-recording" : ""}" data-action="voice" ${state.isRecording ? "disabled" : ""} aria-label="開始語音輸入">
+  const voiceLabel = state.regStep === 0
+    ? "開始語音填寫身份資料"
+    : state.regStep === 1
+      ? "語音填寫興趣偏好"
+      : "語音確認並產生密語";
+
+  const action = state.regStep < 3
+    ? `<button class="voice-button ${state.isRecording ? "is-recording" : ""}" data-action="voice" ${state.isRecording ? "disabled" : ""} aria-label="${voiceLabel}">
         ${state.isRecording ? icon("loader-2", 30) : icon("mic", 30)}
       </button>`
     : `<button class="primary-button" data-action="login">
@@ -118,9 +156,43 @@ function renderLogin() {
               <label for="buyer-company">公司</label>
               <input id="buyer-company" readonly value="${escapeHtml(state.userData.company)}" placeholder="AI 自動萃取中...">
             </div>
+            ${preferenceSummary}
             ${passcode}
           </div>
           ${action}
+        </div>
+      </section>
+    </main>
+  `;
+}
+
+function renderPrivacy() {
+  return `
+    <main class="login-screen">
+      <section class="login-shell privacy-shell" aria-label="隱私權聲明">
+        <div class="login-brand">
+          <h1>AMAZEXPO 365</h1>
+          <p>買主快速通關與推薦 demo</p>
+        </div>
+        <div class="privacy-content">
+          <div class="privacy-icon">${icon("shield-check", 34)}</div>
+          <h2>隱私權聲明</h2>
+          <p>
+            這是展示用流程。系統會假裝蒐集您的基本名片資料、產業興趣、採購目標、預算區間與偏好的逛展方式，
+            用來模擬 AI 推薦展商、活動、工作坊與媒合邀約。
+          </p>
+          <ul class="privacy-list">
+            <li>${icon("badge-check", 16)} 本 demo 不會真的上傳或儲存個資。</li>
+            <li>${icon("mic", 16)} 語音輸入為模擬效果，點擊後自動填入假資料。</li>
+            <li>${icon("sparkles", 16)} 偏好標籤僅用來展示推薦與行程排序體驗。</li>
+          </ul>
+          <label class="privacy-check">
+            <input type="checkbox" data-action="toggle-privacy-check">
+            <span>我已閱讀並同意使用 demo 模擬資料。</span>
+          </label>
+          <button class="primary-button" data-action="accept-privacy">
+            同意並開始 ${icon("arrow-right", 18)}
+          </button>
         </div>
       </section>
     </main>
@@ -132,12 +204,20 @@ function renderApp() {
     <div class="app-layout">
       <header class="app-header">
         <div class="header-shell">
-          <div class="assistant-avatar">AI</div>
+          <button class="assistant-avatar ${state.isAssistantListening ? "is-listening" : ""}" data-action="assistant-mic" aria-label="AI 助理收音">
+            ${state.isAssistantListening ? icon("loader-2", 26) : "AI"}
+          </button>
           <div class="header-main">
             <div class="ai-bubble">${escapeHtml(getAIMessage())}</div>
-            <nav class="desktop-nav" aria-label="主要導覽">
-              ${renderNavButtons()}
-            </nav>
+            <div class="header-actions">
+              <button class="listen-button ${state.isAssistantListening ? "is-listening" : ""}" data-action="assistant-mic">
+                ${state.isAssistantListening ? icon("loader-2", 18) : icon("mic", 18)}
+                <span>${state.isAssistantListening ? "正在收音" : "AI 收音"}</span>
+              </button>
+              <nav class="desktop-nav" aria-label="主要導覽">
+                ${renderNavButtons()}
+              </nav>
+            </div>
           </div>
         </div>
       </header>
@@ -206,11 +286,7 @@ function renderExploreToolbar() {
 }
 
 function renderExhibitorGrid(exhibitors) {
-  return `
-    <div class="exhibitor-grid">
-      ${exhibitors.map(renderExhibitorCard).join("")}
-    </div>
-  `;
+  return `<div class="exhibitor-grid">${exhibitors.map(renderExhibitorCard).join("")}</div>`;
 }
 
 function renderExhibitorCard(exhibitor) {
@@ -310,22 +386,61 @@ function renderSchedule() {
   return `
     <section class="view-stack" aria-label="我的行程">
       <div class="schedule-head">
-        <h2>展會行程表</h2>
+        <div>
+          <h2>展會行事曆</h2>
+          <p>整合大會活動、工作坊、演講與您的個人媒合行程。</p>
+        </div>
         <button class="ghost-button">${icon("plus", 17)} 新增私人行程</button>
       </div>
-      <div class="timeline">
-        ${mockSchedule.map((item) => `
-          <article class="schedule-card panel">
-            <div class="schedule-meta">
-              <span class="type-chip">${escapeHtml(item.type)}</span>
-              <span class="time-text">${escapeHtml(item.time)}</span>
-            </div>
-            <h3>${escapeHtml(item.title)}</h3>
-            <p>${icon("map-pin", 16)} ${escapeHtml(item.location)}</p>
-          </article>
-        `).join("")}
+      <div class="calendar-grid">
+        <article class="calendar-column panel">
+          <div class="calendar-column-head">
+            <h3>${icon("calendar-days", 19)} 大會行事曆</h3>
+            <span class="location-pill">${expoEvents.length} 場活動</span>
+          </div>
+          <div class="event-list">
+            ${expoEvents.map(renderExpoEvent).join("")}
+          </div>
+        </article>
+        <article class="calendar-column panel">
+          <div class="calendar-column-head">
+            <h3>${icon("user-check", 19)} 我的個人行程</h3>
+            <span class="location-pill">${personalSchedule.length} 個安排</span>
+          </div>
+          <div class="timeline compact-timeline">
+            ${personalSchedule.map(renderPersonalEvent).join("")}
+          </div>
+        </article>
       </div>
     </section>
+  `;
+}
+
+function renderExpoEvent(item) {
+  return `
+    <div class="event-card">
+      <div class="event-time">${escapeHtml(item.time)}</div>
+      <div class="event-main">
+        <span class="type-chip">${escapeHtml(item.type)}</span>
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>${icon("map-pin", 15)} ${escapeHtml(item.location)}</p>
+        <p>${icon("users", 15)} ${escapeHtml(item.host)}</p>
+      </div>
+      <button class="icon-button" aria-label="加入 ${escapeHtml(item.title)} 到我的行程">${icon("plus", 18)}</button>
+    </div>
+  `;
+}
+
+function renderPersonalEvent(item) {
+  return `
+    <article class="schedule-card">
+      <div class="schedule-meta">
+        <span class="type-chip">${escapeHtml(item.type)}</span>
+        <span class="time-text">${escapeHtml(item.time)}</span>
+      </div>
+      <h3>${escapeHtml(item.title)}</h3>
+      <p>${icon("map-pin", 16)} ${escapeHtml(item.location)}</p>
+    </article>
   `;
 }
 
@@ -349,9 +464,14 @@ function renderProfile() {
           <div class="field">
             <label>感興趣的產業</label>
             <div class="chip-row">
-              <span class="chip primary">晶圓代工</span>
-              <span class="chip primary">先進封裝</span>
+              ${state.userData.interests.map((item) => `<span class="chip primary">${escapeHtml(item)}</span>`).join("")}
               <button class="tag-button">+ 新增</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>採購目標</label>
+            <div class="chip-row">
+              ${state.userData.goals.map((item) => `<span class="chip">${escapeHtml(item)}</span>`).join("")}
             </div>
           </div>
           <div class="field">
@@ -359,7 +479,7 @@ function renderProfile() {
             <select id="budget">
               <option>請選擇...</option>
               <option>100萬 - 500萬</option>
-              <option selected>500萬 - 1000萬</option>
+              <option selected>${escapeHtml(state.userData.budget || "500萬 - 1000萬")}</option>
             </select>
           </div>
         </div>
@@ -372,7 +492,13 @@ function bindEvents() {
   app.querySelectorAll("[data-action]").forEach((node) => {
     node.addEventListener("click", () => {
       const action = node.dataset.action;
+      if (action === "toggle-privacy-check") handlePrivacyCheck(node);
+      if (action === "accept-privacy") {
+        state.privacyAccepted = true;
+        render();
+      }
       if (action === "voice") handleVoiceInput();
+      if (action === "assistant-mic") handleAssistantMic();
       if (action === "login") {
         state.isLoggedIn = true;
         state.activeTab = "home";
@@ -415,6 +541,23 @@ function bindEvents() {
   });
 }
 
+function handlePrivacyCheck(checkbox) {
+  const button = app.querySelector('[data-action="accept-privacy"]');
+  if (button) button.disabled = !checkbox.checked;
+}
+
+function handleAssistantMic() {
+  if (state.isAssistantListening) return;
+  state.isAssistantListening = true;
+  render();
+
+  window.setTimeout(() => {
+    state.isAssistantListening = false;
+    if (state.activeTab === "schedule") state.activeTab = "schedule";
+    render();
+  }, 1100);
+}
+
 function handleVoiceInput() {
   state.isRecording = true;
   render();
@@ -433,9 +576,18 @@ function handleVoiceInput() {
     } else if (state.regStep === 1) {
       state.userData = {
         ...state.userData,
-        passcode: "白日依山盡",
+        interests: ["先進封裝", "AI晶片", "車用半導體"],
+        goals: ["尋找供應商", "預約工作坊", "安排一對一洽談"],
+        visitStyle: "半天精準逛展，優先看 AI 推薦路線",
+        budget: "500萬 - 1000萬",
       };
       state.regStep = 2;
+    } else if (state.regStep === 2) {
+      state.userData = {
+        ...state.userData,
+        passcode: "白日依山盡",
+      };
+      state.regStep = 3;
     }
 
     render();
