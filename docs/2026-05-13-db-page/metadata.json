@@ -3,5 +3,5 @@
   "title": "愛吠的狗 - CSM 總戰情儀表板",
   "updated_by": "Hermes",
   "updated_at": "2026-05-19",
-  "change_summary": "補完整各 Dashboard 區塊 hover / popover 說明，說明每項可視化數據的目的、判讀方式與 CS 建議行動。"
+  "change_summary": "補完整 Dashboard 指標說明；將「展機地圖與硬體狀態建置中」改為實際假資料表格與硬體 KPI，不再使用空白置中佔位區。"
 }
