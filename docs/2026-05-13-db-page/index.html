@@ -418,11 +418,114 @@
         </section>
 
         <!-- ==================== 頁籤 4：硬體狀態 ==================== -->
-        <section id="tab-device" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6 flex items-center justify-center">
-            <div class="text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#94a3b8" class="mx-auto mb-4" viewBox="0 0 256 256"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM80,32h96a8,8,0,0,1,8,8v16H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8V72H184V216A8,8,0,0,1,176,224ZM128,176a12,12,0,1,0,12,12A12,12,0,0,0,128,176Z"></path></svg>
-                <h3 class="text-xl font-bold text-slate-700">展機地圖與硬體狀態建置中 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-map')" title="查看數據目的與判讀方式">?</button></h3>
-                <p class="text-slate-500 mt-2 font-medium">此頁面將整合全國 KIOSK 展機的網路延遲 (Ping) 與充電站狀態。</p>
+        <section id="tab-device" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
+            <div class="mb-5 flex justify-between items-start gap-4">
+                <div>
+                    <h3 class="text-xl font-black text-slate-800 flex items-center gap-2">展機與硬體狀態總覽 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-map')" title="查看數據目的與判讀方式">?</button></h3>
+                    <p class="text-sm text-slate-500 mt-1 font-medium">假資料示意：用來追蹤 Kiosk / 機器人現場端點是否在線、網路是否穩定、是否需要派工。</p>
+                </div>
+                <span class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-3 py-1 shadow-sm">最後同步：3 分鐘前</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <p class="text-xs font-black text-slate-500 mb-1">展機總數 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-total')" title="查看數據目的與判讀方式">?</button></p>
+                    <div class="text-3xl font-black text-slate-800">12</div>
+                    <p class="text-xs text-slate-400 mt-1">含 Kiosk 8 台、機器人 4 台</p>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-200">
+                    <p class="text-xs font-black text-emerald-700 mb-1">在線正常 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-online')" title="查看數據目的與判讀方式">?</button></p>
+                    <div class="text-3xl font-black text-emerald-900">9</div>
+                    <p class="text-xs text-emerald-700 mt-1">平均延遲 42ms</p>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl shadow-sm border border-amber-200">
+                    <p class="text-xs font-black text-amber-700 mb-1">需現場確認 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-warning')" title="查看數據目的與判讀方式">?</button></p>
+                    <div class="text-3xl font-black text-amber-900">2</div>
+                    <p class="text-xs text-amber-700 mt-1">網路延遲偏高或電量偏低</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200">
+                    <p class="text-xs font-black text-red-700 mb-1">離線 / 異常 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-offline')" title="查看數據目的與判讀方式">?</button></p>
+                    <div class="text-3xl font-black text-red-900 blink">1</div>
+                    <p class="text-xs text-red-700 mt-1">心跳中斷超過 2 小時</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-slate-800">設備清單與派工狀態 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-table')" title="查看數據目的與判讀方式">?</button></h3>
+                        <button class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold shadow-sm">匯出巡檢表</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-600 text-sm">
+                                    <th class="py-3 px-4 font-bold border-b border-slate-200">客戶 / 位置</th>
+                                    <th class="py-3 px-4 font-bold border-b border-slate-200">設備類型</th>
+                                    <th class="py-3 px-4 font-bold border-b border-slate-200">狀態</th>
+                                    <th class="py-3 px-4 font-bold border-b border-slate-200">最後心跳</th>
+                                    <th class="py-3 px-4 font-bold border-b border-slate-200">網路 / 電源</th>
+                                    <th class="py-3 px-4 font-bold border-b border-slate-200">建議動作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="hover:bg-red-50 bg-red-50/40 border-b border-red-100">
+                                    <td class="py-3 px-4"><p class="font-bold text-slate-800">C 百貨 1F</p><p class="text-xs text-slate-500">導覽機器人 R-03</p></td>
+                                    <td class="py-3 px-4 text-slate-600 font-medium">機器人</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-black">離線</span></td>
+                                    <td class="py-3 px-4 text-red-600 font-bold">2 小時 14 分前</td>
+                                    <td class="py-3 px-4"><p class="font-bold text-red-600">Ping timeout</p><p class="text-xs text-slate-500">電量未知</p></td>
+                                    <td class="py-3 px-4"><button onclick="openDiagnostic('client-c')" class="px-3 py-1 bg-red-600 text-white rounded text-xs font-bold hover:bg-red-700">開啟 SOP</button></td>
+                                </tr>
+                                <tr class="hover:bg-amber-50 bg-amber-50/30 border-b border-amber-100">
+                                    <td class="py-3 px-4"><p class="font-bold text-slate-800">D 展館入口</p><p class="text-xs text-slate-500">Kiosk K-11</p></td>
+                                    <td class="py-3 px-4 text-slate-600 font-medium">Kiosk</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-black">延遲高</span></td>
+                                    <td class="py-3 px-4 text-slate-600">4 分鐘前</td>
+                                    <td class="py-3 px-4"><p class="font-bold text-amber-700">Ping 386ms</p><p class="text-xs text-slate-500">AC 電源正常</p></td>
+                                    <td class="py-3 px-4"><button class="px-3 py-1 bg-amber-600 text-white rounded text-xs font-bold hover:bg-amber-700">請現場測速</button></td>
+                                </tr>
+                                <tr class="hover:bg-amber-50 bg-amber-50/20 border-b border-amber-100">
+                                    <td class="py-3 px-4"><p class="font-bold text-slate-800">E 醫療院區 B1</p><p class="text-xs text-slate-500">導覽機器人 R-08</p></td>
+                                    <td class="py-3 px-4 text-slate-600 font-medium">機器人</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-black">電量低</span></td>
+                                    <td class="py-3 px-4 text-slate-600">1 分鐘前</td>
+                                    <td class="py-3 px-4"><p class="font-bold text-amber-700">電量 18%</p><p class="text-xs text-slate-500">Ping 58ms</p></td>
+                                    <td class="py-3 px-4"><button class="px-3 py-1 bg-white border border-slate-300 rounded text-xs font-bold hover:bg-slate-100">提醒充電</button></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 border-b border-slate-100">
+                                    <td class="py-3 px-4"><p class="font-bold text-slate-800">B 科技金控 12F</p><p class="text-xs text-slate-500">會議室 Kiosk K-04</p></td>
+                                    <td class="py-3 px-4 text-slate-600 font-medium">Kiosk</td>
+                                    <td class="py-3 px-4"><span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-black">正常</span></td>
+                                    <td class="py-3 px-4 text-slate-600">30 秒前</td>
+                                    <td class="py-3 px-4"><p class="font-bold text-emerald-700">Ping 31ms</p><p class="text-xs text-slate-500">AC 電源正常</p></td>
+                                    <td class="py-3 px-4"><span class="text-xs text-slate-400 font-bold">無需處理</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4">本週硬體事件 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-events')" title="查看數據目的與判讀方式">?</button></h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between items-center"><span class="text-slate-600">心跳中斷</span><span class="font-black text-red-600">4 次</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-600">網路延遲高於 300ms</span><span class="font-black text-amber-600">7 次</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-600">低電量提醒</span><span class="font-black text-amber-600">3 次</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-600">現場已確認恢復</span><span class="font-black text-emerald-600">5 件</span></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 text-white rounded-xl shadow-sm p-5">
+                        <h3 class="text-lg font-black mb-3">CS 今日建議</h3>
+                        <ul class="space-y-3 text-sm text-slate-200 leading-relaxed">
+                            <li>• 先處理 C 百貨離線設備，避免現場服務中斷持續擴大。</li>
+                            <li>• 請 D 展館現場測速，若延遲持續高於 300ms，建立網路改善 ticket。</li>
+                            <li>• E 醫療院區設備需確認充電站接觸是否正常。</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -563,7 +666,14 @@
             'intent-chart': { title: '熱門意圖分佈', body: `<h4>數據目的</h4><p>把大量對話歸類成需求主題，讓 CS 知道客戶的使用者最常問什麼。</p><h4>如何判讀</h4><p>高頻意圖代表高價值內容區；若高頻意圖同時高兜底，代表最該優先補 KB。</p><h4>建議行動</h4><p>每週檢查 Top Intent，轉成客戶週報、KB 更新建議與產品需求洞察。</p>` },
             'fallback-table': { title: '高頻無效回答清單', body: `<h4>數據目的</h4><p>直接列出 AI 沒答好的使用者原始問題，協助 CS 從「問題現象」追到「知識缺口」。</p><h4>如何判讀</h4><p>發生次數越高，代表越多使用者受到影響；若問題和營業資訊、價格、活動相關，通常需要客戶補資料。</p><h4>建議行動</h4><p>將高頻問題整理成 KB 更新任務，並標註需要客戶確認的欄位。</p>` },
             'kb-table': { title: '全客戶 KB 健康度', body: `<h4>數據目的</h4><p>跨客戶追蹤 FAQ 數量、老化題數與最後維護日，用於預防回答品質下降。</p><h4>如何判讀</h4><p>FAQ 數多不代表品質好；老化比例高才是風險。POC 客戶若 KB 老化，會直接影響驗收與轉正。</p><h4>建議行動</h4><p>針對老化比例高的客戶發送更新提醒，必要時由 CS 先根據對話紀錄提出補 KB 草稿。</p>` },
-            'device-map': { title: '展機地圖與硬體狀態', body: `<h4>數據目的</h4><p>集中查看 Kiosk / 機器人等實體端點的網路、電源與所在地狀態。</p><h4>如何判讀</h4><p>若多台設備同地區同時異常，可能是場域網路；單台異常則可能是硬體或應用程式問題。</p><h4>建議行動</h4><p>未來可加入地圖、Ping 延遲、最後心跳、現場窗口與 SLA 倒數。</p>` },
+
+            'device-total': { title: '展機總數', body: `<h4>數據目的</h4><p>表示目前需要被 CS/維運團隊監控的實體端點數，是估算巡檢負載與現場支援量的基礎。</p><h4>如何判讀</h4><p>總數增加時，若異常率也增加，代表部署標準或現場網路品質需要檢查。</p><h4>建議行動</h4><p>用總數搭配在線率、異常率與平均修復時間，評估是否需要建立定期巡檢排程。</p>` },
+            'device-online': { title: '在線正常', body: `<h4>數據目的</h4><p>追蹤目前可提供服務的設備數，直接影響現場服務可用性。</p><h4>如何判讀</h4><p>在線率若低於目標門檻，例如 95%，CS 應追查是單一客戶場域問題還是大範圍平台問題。</p><h4>建議行動</h4><p>對長期在線穩定的場域可降低人工巡檢頻率，把時間留給高風險場域。</p>` },
+            'device-warning': { title: '需現場確認', body: `<h4>數據目的</h4><p>標記尚未完全中斷，但已有延遲、低電量或短暫掉線的設備。</p><h4>如何判讀</h4><p>這類狀態是預防性維運重點；若不處理，通常會演變成離線或客訴。</p><h4>建議行動</h4><p>請現場窗口先做低成本確認：測速、插電、重啟、檢查設備位置。</p>` },
+            'device-offline': { title: '離線 / 異常', body: `<h4>數據目的</h4><p>指出已經無法提供正常服務的設備，是硬體維運最高優先級。</p><h4>如何判讀</h4><p>心跳中斷超過 2 小時應視為服務中斷，不應等待例行巡檢。</p><h4>建議行動</h4><p>立即開啟 SOP，確認網路、電源、應用程式與現場環境；仍未恢復則升級為 ticket。</p>` },
+            'device-table': { title: '設備清單與派工狀態', body: `<h4>數據目的</h4><p>把每台設備的地點、狀態、最後心跳、網路與建議動作放在同一張表，讓 CS 可以直接派工。</p><h4>如何判讀</h4><p>優先順序通常是離線 > 延遲高 > 電量低 > 正常巡檢。</p><h4>建議行動</h4><p>針對紅色列開 SOP；黃色列先請現場做快速確認；綠色列保留紀錄即可。</p>` },
+            'device-events': { title: '本週硬體事件', body: `<h4>數據目的</h4><p>用事件頻率判斷某個場域是否反覆出現相同問題，避免每次只做個案排除。</p><h4>如何判讀</h4><p>若延遲或心跳中斷反覆出現，代表可能是場域網路、電源配置或設備位置造成的結構性問題。</p><h4>建議行動</h4><p>超過門檻時建立長期改善 ticket，並在客戶週報中提出原因與建議。</p>` },
+            'device-map': { title: '展機地圖與硬體狀態', body: `<h4>數據目的</h4><p>集中查看 Kiosk / 機器人等實體端點的網路、電源、最後心跳與派工狀態。</p><h4>如何判讀</h4><p>若多台設備同地區同時異常，可能是場域網路；單台異常則可能是硬體或應用程式問題。</p><h4>建議行動</h4><p>未來可加入地圖、Ping 延遲、最後心跳、現場窗口與 SLA 倒數。</p>` },
             'sop-panel': { title: '維運排障 SOP', body: `<h4>數據目的</h4><p>把異常訊號轉成標準處理流程，降低 CS 只看到紅燈但不知道下一步的落差。</p><h4>如何判讀</h4><p>SOP 先處理最可能且最容易排除的因素：網路、電源、場地、麥克風、應用程式版本。</p><h4>建議行動</h4><p>執行完成仍未恢復時，升級為 ticket 並附上已檢查項目，避免工程團隊重複追問。</p>` }
         };
 
