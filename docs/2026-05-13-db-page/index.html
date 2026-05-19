@@ -23,6 +23,20 @@
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 指標說明互動：每個 Dashboard 區塊皆可點擊 ? 查看數據目的 */
+        .info-btn { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:999px; background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-size:12px; font-weight:900; cursor:pointer; transition:all .15s ease; }
+        .info-btn:hover { background:#0284c7; color:white; transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,132,199,.22); }
+        .metric-purpose { margin-top:10px; padding:10px 12px; border-radius:10px; background:rgba(248,250,252,.92); border:1px dashed #cbd5e1; color:#475569; font-size:12px; line-height:1.55; }
+        .purpose-overlay { position:fixed; inset:0; background:rgba(15,23,42,.45); z-index:80; display:none; align-items:center; justify-content:center; padding:20px; }
+        .purpose-overlay.active { display:flex; }
+        .purpose-card { width:min(640px, 94vw); background:white; border-radius:22px; box-shadow:0 30px 90px rgba(15,23,42,.35); border:1px solid #e2e8f0; overflow:hidden; }
+        .purpose-card-header { padding:18px 22px; background:linear-gradient(135deg,#0f172a,#1e3a8a); color:white; display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+        .purpose-card-body { padding:22px; color:#334155; line-height:1.75; font-size:14px; }
+        .purpose-card-body h4 { font-weight:900; color:#0f172a; margin:14px 0 4px; }
+        .purpose-card-body ul { margin:6px 0 0 1.1rem; }
+        .purpose-close { color:#cbd5e1; font-size:24px; line-height:1; font-weight:900; cursor:pointer; }
+        .purpose-close:hover { color:white; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen flex overflow-hidden">
@@ -78,7 +92,7 @@
         
         <!-- 共用頂部資訊列 -->
         <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center shrink-0 z-10">
-            <h2 id="pageTitle" class="text-2xl font-black text-slate-800">客戶大盤總覽 <span class="text-sm font-medium text-slate-400 ml-2">本月健康度與趨勢追蹤</span></h2>
+            <h2 id="pageTitle" class="text-2xl font-black text-slate-800">客戶大盤總覽 <span class="text-sm font-medium text-slate-400 ml-2">本月健康度與趨勢追蹤</span> <button type="button" class="info-btn" onclick="openPurpose(event, 'overview')" title="查看數據目的與判讀方式">?</button></h2>
             <div class="flex items-center gap-4">
                 <div class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md text-sm flex items-center gap-2 font-medium">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path></svg>
@@ -92,33 +106,42 @@
 
         <!-- ==================== 頁籤 1：客戶大盤總覽 ==================== -->
         <section id="tab-overview" class="tab-content active flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6">
-            
+
+
+            <div class="bg-blue-50 border border-blue-200 text-blue-900 rounded-xl p-4 mb-5 flex items-start gap-3 shadow-sm">
+                <div class="info-btn shrink-0" onclick="openPurpose(event, 'overview')">?</div>
+                <div>
+                    <p class="text-sm font-black mb-1">使用方式：點擊各區塊的「?」查看數據目的</p>
+                    <p class="text-xs leading-relaxed text-blue-800">此頁不是單純報表，而是給 CS 判斷「誰需要跟進、為什麼要跟進、下一步做什麼」的工作台。每個說明皆包含定義、判讀方式與建議行動。</p>
+                </div>
+            </div>
+
             <!-- 大盤狀態統計列 -->
             <div class="grid grid-cols-4 gap-4 mb-6">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-slate-500 font-bold mb-1">運營中專案總數</p>
+                        <p class="text-sm text-slate-500 font-bold mb-1">運營中專案總數 <button type="button" class="info-btn" onclick="openPurpose(event, 'kpi-total')" title="查看數據目的與判讀方式">?</button></p>
                         <h3 class="text-2xl font-black text-slate-800">5 <span class="text-sm font-normal text-slate-500">個</span></h3>
                     </div>
                     <div class="p-3 bg-slate-100 rounded-lg text-slate-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg></div>
                 </div>
                 <div class="bg-emerald-50 p-4 rounded-xl shadow-sm border border-emerald-200 flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-emerald-700 font-bold mb-1">健康運作中</p>
+                        <p class="text-sm text-emerald-700 font-bold mb-1">健康運作中 <button type="button" class="info-btn" onclick="openPurpose(event, 'kpi-healthy')" title="查看數據目的與判讀方式">?</button></p>
                         <h3 class="text-2xl font-black text-emerald-900">3 <span class="text-sm font-normal text-emerald-700">間</span></h3>
                     </div>
                     <div class="p-3 bg-emerald-100 rounded-lg text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg></div>
                 </div>
                 <div class="bg-amber-50 p-4 rounded-xl shadow-sm border border-amber-200 flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-amber-700 font-bold mb-1">需觀察 (老化/低活)</p>
+                        <p class="text-sm text-amber-700 font-bold mb-1">需觀察 (老化/低活) <button type="button" class="info-btn" onclick="openPurpose(event, 'kpi-watch')" title="查看數據目的與判讀方式">?</button></p>
                         <h3 class="text-2xl font-black text-amber-900">1 <span class="text-sm font-normal text-amber-700">間</span></h3>
                     </div>
                     <div class="p-3 bg-amber-100 rounded-lg text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"></path></svg></div>
                 </div>
                 <div class="bg-red-50 p-4 rounded-xl shadow-sm border border-red-200 flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-red-700 font-bold mb-1">異常斷線中</p>
+                        <p class="text-sm text-red-700 font-bold mb-1">異常斷線中 <button type="button" class="info-btn" onclick="openPurpose(event, 'kpi-critical')" title="查看數據目的與判讀方式">?</button></p>
                         <h3 class="text-2xl font-black text-red-900 blink">1 <span class="text-sm font-normal text-red-700">間</span></h3>
                     </div>
                     <div class="p-3 bg-red-100 rounded-lg text-red-600"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM120,104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm8,88a12,12,0,1,1,12-12A12,12,0,0,1,128,192Z"></path></svg></div>
@@ -142,7 +165,7 @@
                             <span class="bg-blue-100 text-blue-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-blue-200">CSM 維運中</span>
                             <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">實體機器人展機</span>
                         </div>
-                        <h3 class="text-xl font-black text-slate-800 truncate">C 百貨 1F 導覽機器人</h3>
+                        <h3 class="text-xl font-black text-slate-800 truncate">C 百貨 1F 導覽機器人 <button type="button" class="info-btn" onclick="openPurpose(event, 'client-c')" title="查看數據目的與判讀方式">?</button></h3>
                         <p class="text-xs text-slate-400 mt-1">AI AMAZE (Windows 端)</p>
                     </div>
 
@@ -152,7 +175,7 @@
                         <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 relative overflow-hidden">
                             <div class="flex justify-between items-end relative z-10">
                                 <div>
-                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天互動總量</p>
+                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天互動總量 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-interactions')" title="查看數據目的與判讀方式">?</button></p>
                                     <div class="flex items-baseline gap-2">
                                         <h4 class="text-3xl font-black text-slate-800">1,245</h4>
                                         <span class="text-sm font-bold text-red-500 flex items-center">
@@ -170,11 +193,11 @@
                         <!-- 數據 2: 其他指標 -->
                         <div class="flex gap-4">
                             <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                                <p class="text-[10px] font-bold text-slate-500 mb-1">知識庫更新狀態</p>
+                                <p class="text-[10px] font-bold text-slate-500 mb-1">知識庫更新狀態 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-kb-age')" title="查看數據目的與判讀方式">?</button></p>
                                 <p class="text-lg font-bold text-red-600">65 天未更新</p>
                             </div>
                             <div class="flex-1 bg-red-50 rounded-lg p-3 border border-red-100">
-                                <p class="text-[10px] font-bold text-red-800 mb-1">硬體連線狀態</p>
+                                <p class="text-[10px] font-bold text-red-800 mb-1">硬體連線狀態 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-device-heartbeat')" title="查看數據目的與判讀方式">?</button></p>
                                 <p class="text-sm font-bold text-red-600">無網路心跳 (>2hr)</p>
                             </div>
                         </div>
@@ -199,7 +222,7 @@
                             <span class="bg-purple-100 text-purple-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-purple-200">PM 導入中 (月收)</span>
                             <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">SaaS 網頁版</span>
                         </div>
-                        <h3 class="text-xl font-black text-slate-800 truncate">B 科技金控內部會議室</h3>
+                        <h3 class="text-xl font-black text-slate-800 truncate">B 科技金控內部會議室 <button type="button" class="info-btn" onclick="openPurpose(event, 'client-b')" title="查看數據目的與判讀方式">?</button></h3>
                         <p class="text-xs text-slate-400 mt-1">SecureMeet (會議摘要與翻譯)</p>
                     </div>
 
@@ -207,7 +230,7 @@
                         <div class="bg-emerald-50/30 rounded-lg p-4 border border-emerald-100 relative overflow-hidden">
                             <div class="flex justify-between items-end relative z-10">
                                 <div>
-                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天生成會議摘要數</p>
+                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天生成會議摘要數 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-meeting-summary')" title="查看數據目的與判讀方式">?</button></p>
                                     <div class="flex items-baseline gap-2">
                                         <h4 class="text-3xl font-black text-slate-800">428</h4>
                                         <span class="text-sm font-bold text-emerald-600 flex items-center">
@@ -223,14 +246,14 @@
 
                         <div class="flex gap-4">
                             <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                                <p class="text-[10px] font-bold text-slate-500 mb-1">語者辨識註冊數</p>
+                                <p class="text-[10px] font-bold text-slate-500 mb-1">語者辨識註冊數 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-speaker')" title="查看數據目的與判讀方式">?</button></p>
                                 <div class="flex items-baseline gap-1">
                                     <p class="text-lg font-bold text-slate-800">145</p>
                                     <span class="text-[10px] text-emerald-600 font-bold">▲ 12</span>
                                 </div>
                             </div>
                             <div class="flex-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                                <p class="text-[10px] font-bold text-slate-500 mb-1">Prompt 模板修改</p>
+                                <p class="text-[10px] font-bold text-slate-500 mb-1">Prompt 模板修改 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-prompt')" title="查看數據目的與判讀方式">?</button></p>
                                 <p class="text-sm font-bold text-slate-800 mt-1">高活躍 (2天前)</p>
                             </div>
                         </div>
@@ -250,7 +273,7 @@
                             <span class="bg-amber-100 text-amber-800 text-[11px] font-black px-2.5 py-0.5 rounded border border-amber-200">POC 概念驗證</span>
                             <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded">Line/Web 跨平台</span>
                         </div>
-                        <h3 class="text-xl font-black text-slate-800 truncate">A 連鎖餐飲品牌客服</h3>
+                        <h3 class="text-xl font-black text-slate-800 truncate">A 連鎖餐飲品牌客服 <button type="button" class="info-btn" onclick="openPurpose(event, 'client-a')" title="查看數據目的與判讀方式">?</button></h3>
                         <p class="text-xs text-slate-400 mt-1">AI AMAZE (跨平台文字客服)</p>
                     </div>
 
@@ -258,7 +281,7 @@
                         <div class="bg-slate-50 rounded-lg p-4 border border-slate-100 relative overflow-hidden">
                             <div class="flex justify-between items-end relative z-10">
                                 <div>
-                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天互動總句數</p>
+                                    <p class="text-xs font-bold text-slate-500 mb-1">近 30 天互動總句數 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-message-volume')" title="查看數據目的與判讀方式">?</button></p>
                                     <div class="flex items-baseline gap-2">
                                         <h4 class="text-3xl font-black text-slate-800">18,500</h4>
                                         <span class="text-sm font-bold text-slate-500 flex items-center">
@@ -274,14 +297,14 @@
 
                         <div class="flex gap-4">
                             <div class="flex-1 bg-amber-50/50 rounded-lg p-3 border border-amber-100">
-                                <p class="text-[10px] font-bold text-amber-700 mb-1">兜底回答率 (Fallback)</p>
+                                <p class="text-[10px] font-bold text-amber-700 mb-1">兜底回答率 (Fallback) <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-fallback')" title="查看數據目的與判讀方式">?</button></p>
                                 <div class="flex items-baseline gap-1">
                                     <p class="text-lg font-bold text-amber-800">15.4%</p>
                                     <span class="text-[10px] text-red-500 font-bold">▲ 3.2% (惡化)</span>
                                 </div>
                             </div>
                             <div class="flex-1 bg-amber-50/50 rounded-lg p-3 border border-amber-100">
-                                <p class="text-[10px] font-bold text-amber-700 mb-1">知識庫更新</p>
+                                <p class="text-[10px] font-bold text-amber-700 mb-1">知識庫更新 <button type="button" class="info-btn" onclick="openPurpose(event, 'metric-kb-age')" title="查看數據目的與判讀方式">?</button></p>
                                 <p class="text-sm font-bold text-red-600 mt-1">120 天未更新</p>
                             </div>
                         </div>
@@ -303,7 +326,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#3b82f6" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.84,15.84,0,0,0,9.25,14.5A16.05,16.05,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78.69.69,0,0,0,.13-.11L82.5,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm-8,40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,80,152Z"></path></svg>
-                        熱門意圖分佈 (Top Intents)
+                        熱門意圖分佈 (Top Intents) <button type="button" class="info-btn" onclick="openPurpose(event, 'intent-chart')" title="查看數據目的與判讀方式">?</button>
                     </h3>
                     <select class="border border-slate-300 rounded px-3 py-1 text-sm bg-slate-50 font-bold"><option>A 連鎖餐飲品牌 (POC)</option><option>C 百貨機器人 (CSM維運)</option></select>
                 </div>
@@ -313,7 +336,7 @@
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                 <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#ef4444" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm16-40a8,8,0,0,1-8,8,16,16,0,0,1-16-16V158a24,24,0,0,1,0-44v-6a8,8,0,0,1,16,0v8h8a8,8,0,0,1,0,16h-8v26a8,8,0,0,0,8,8h8a8,8,0,0,1,0,16Z"></path></svg>
-                    高頻無效回答 (兜底回覆清單)
+                    高頻無效回答 (兜底回覆清單) <button type="button" class="info-btn" onclick="openPurpose(event, 'fallback-table')" title="查看數據目的與判讀方式">?</button>
                 </h3>
                 <p class="text-sm text-slate-500 mb-4">以下是使用者提問，但 AI 觸發了「我不知道」預設回覆的內容。請建議客戶擴充至知識庫。</p>
                 <div class="overflow-x-auto border border-slate-200 rounded-lg">
@@ -353,7 +376,7 @@
                 <div class="p-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#475569" viewBox="0 0 256 256"><path d="M216,40H176V32a24,24,0,0,0-48,0v8H88a8,8,0,0,0,0,16h40V40a8,8,0,0,1,16,0V56h40V208H88V120a8,8,0,0,0-16,0v96a8,8,0,0,0,8,8H216a8,8,0,0,0,8-8V48A8,8,0,0,0,216,40ZM40,96H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm32,32H40a8,8,0,0,0,0,16H72a8,8,0,0,0,0-16Zm-32,48H72a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Z"></path></svg>
-                        全客戶知識庫 (KB) 健康度
+                        全客戶知識庫 (KB) 健康度 <button type="button" class="info-btn" onclick="openPurpose(event, 'kb-table')" title="查看數據目的與判讀方式">?</button>
                     </h3>
                 </div>
                 <div class="overflow-x-auto">
@@ -398,7 +421,7 @@
         <section id="tab-device" class="tab-content flex-1 overflow-y-auto no-scrollbar bg-slate-50 p-6 flex items-center justify-center">
             <div class="text-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#94a3b8" class="mx-auto mb-4" viewBox="0 0 256 256"><path d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16ZM80,32h96a8,8,0,0,1,8,8v16H72V40A8,8,0,0,1,80,32Zm96,192H80a8,8,0,0,1-8-8V72H184V216A8,8,0,0,1,176,224ZM128,176a12,12,0,1,0,12,12A12,12,0,0,0,128,176Z"></path></svg>
-                <h3 class="text-xl font-bold text-slate-700">展機地圖與硬體狀態建置中</h3>
+                <h3 class="text-xl font-bold text-slate-700">展機地圖與硬體狀態建置中 <button type="button" class="info-btn" onclick="openPurpose(event, 'device-map')" title="查看數據目的與判讀方式">?</button></h3>
                 <p class="text-slate-500 mt-2 font-medium">此頁面將整合全國 KIOSK 展機的網路延遲 (Ping) 與充電站狀態。</p>
             </div>
         </section>
@@ -410,7 +433,7 @@
                 <div>
                     <h3 class="text-lg font-black tracking-wide flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Zm-96-72a72,72,0,1,0,72,72A72,72,0,0,0,128,56Zm16,72a16,16,0,1,1-16-16A16,16,0,0,1,144,128Z"></path></svg>
-                        標準維運與排障指南 (SOP)
+                        標準維運與排障指南 (SOP) <button type="button" class="info-btn" onclick="openPurpose(event, 'sop-panel')" title="查看數據目的與判讀方式">?</button>
                     </h3>
                     <p class="text-xs text-slate-400 mt-1" id="diagClientName">載入中...</p>
                 </div>
@@ -498,10 +521,69 @@
                 </button>
             </div>
         </div>
+
+
+        <!-- 指標目的說明彈窗 -->
+        <div id="purposeOverlay" class="purpose-overlay" onclick="closePurpose(event)">
+            <div class="purpose-card" onclick="event.stopPropagation()">
+                <div class="purpose-card-header">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.18em] text-sky-200 font-black">Data Purpose</p>
+                        <h3 id="purposeTitle" class="text-xl font-black mt-1">數據說明</h3>
+                    </div>
+                    <button type="button" class="purpose-close" onclick="closePurpose(event)" aria-label="關閉">×</button>
+                </div>
+                <div id="purposeBody" class="purpose-card-body"></div>
+            </div>
+        </div>
+
     </main>
 
     <!-- 邏輯腳本 -->
     <script>
+
+        // 0. Dashboard 區塊說明內容：定義 / 目的 / 判讀 / CS 行動
+        const purposeDocs = {
+            overview: { title: '客戶大盤總覽：CS 每日判斷入口', body: `<h4>數據目的</h4><p>整合專案狀態、使用量、知識庫新鮮度、硬體連線與異常訊號，讓 CS 在 30 秒內知道目前客戶池是否穩定。</p><h4>如何判讀</h4><ul><li>健康數下降或觀察/異常數上升，代表本週跟進壓力升高。</li><li>單一客戶互動量暴跌、KB 老化、硬體斷線同時出現時，應視為高優先級風險。</li></ul><h4>建議行動</h4><p>每天先看紅色異常，再看黃色觀察；若連續兩週惡化，需建立 ticket、通知客戶窗口並安排內部支援。</p>` },
+            'kpi-total': { title: '運營中專案總數', body: `<h4>數據目的</h4><p>表示目前 CS 團隊需要持續維護與追蹤的客戶/專案數量，是衡量服務負載的母數。</p><h4>如何判讀</h4><p>總數增加但健康比例不變，代表團隊承載穩定；總數增加且觀察/異常同步增加，代表 onboarding 或維運流程可能需要補強。</p><h4>建議行動</h4><p>搭配健康、觀察、異常比例排定 CS 人力，避免只用總客戶數判斷工作量。</p>` },
+            'kpi-healthy': { title: '健康運作中', body: `<h4>數據目的</h4><p>快速呈現目前沒有明顯使用下降、KB 老化或設備異常的客戶數。</p><h4>如何判讀</h4><p>健康不代表不用關注，而是可用較低頻率維繫；若健康客戶突然下降，要回查是用量、硬體、KB 或 issue 造成。</p><h4>建議行動</h4><p>針對健康客戶可安排成功案例收集、續約鋪陳或擴充需求探索。</p>` },
+            'kpi-watch': { title: '需觀察：老化 / 低活躍', body: `<h4>數據目的</h4><p>標記目前尚未故障，但已有流失或滿意度下降前兆的客戶。</p><h4>如何判讀</h4><ul><li>低活躍：可能導入卡住、使用者教育不足或需求不明確。</li><li>KB 老化：可能導致回答品質下降，進一步造成客戶不信任 AI。</li></ul><h4>建議行動</h4><p>主動約客戶檢查使用阻礙，確認是否要補教育訓練、補知識庫或調整服務場景。</p>` },
+            'kpi-critical': { title: '異常斷線中', body: `<h4>數據目的</h4><p>指出已影響服務可用性的客戶，通常需要立即處理。</p><h4>如何判讀</h4><p>斷線、心跳遺失、API 錯誤或硬體異常屬於高優先級，不能只等例行週會。</p><h4>建議行動</h4><p>立即開啟排障診斷，確認現場網路/電源/應用程式狀態，必要時升級為 ticket 並通知客戶窗口。</p>` },
+            'client-c': { title: 'C 百貨：硬體 / 網路異常風險', body: `<h4>數據目的</h4><p>這張卡整合互動量暴跌、KB 未更新與硬體心跳遺失，目的是讓 CS 看到「服務中斷」而不只是單一數字下降。</p><h4>如何判讀</h4><p>近 30 天互動量下降 45.2% 且無網路心跳超過 2 小時，應優先視為現場設備或網路問題，而不是使用者興趣下降。</p><h4>建議行動</h4><p>先走排障 SOP；若現場恢復後互動仍低，再檢查展示位置、導覽動線與 KB 內容。</p>` },
+            'client-b': { title: 'B 科技金控：高成長客戶', body: `<h4>數據目的</h4><p>標記導入中但使用量快速成長的客戶，協助 CS/PM 及早辨識擴充與續約機會。</p><h4>如何判讀</h4><p>摘要數增加 124.5% 且語者註冊增加，代表客戶內部 adoption 正在擴散；但也要同步觀察成本、權限與 prompt 管理。</p><h4>建議行動</h4><p>安排成功回顧，確認下一批使用部門、用量方案與資安/權限需求。</p>` },
+            'client-a': { title: 'A 餐飲品牌：POC 停滯與 KB 風險', body: `<h4>數據目的</h4><p>這張卡用來辨識 POC 客戶是否因知識庫不足或兜底率升高而卡住。</p><h4>如何判讀</h4><p>互動總量持平但兜底率升高，代表使用者仍有需求，但 AI 沒有答好；若 KB 120 天未更新，應優先處理內容品質。</p><h4>建議行動</h4><p>把高頻兜底問題轉成補 KB 清單，並與客戶確認菜單、優惠、外送、兒童椅等營運資訊。</p>` },
+            'metric-interactions': { title: '近 30 天互動量 / 互動句數', body: `<h4>數據目的</h4><p>衡量客戶服務被實際使用的程度，是導入成效與流失風險的核心訊號。</p><h4>如何判讀</h4><ul><li>上升：可能是 adoption 成功，也可能是異常問題造成大量詢問。</li><li>下降：可能是設備故障、入口不明顯、客戶內部推廣不足或場景價值下降。</li></ul><h4>建議行動</h4><p>不要只看升降，要搭配兜底率、硬體心跳、KB 更新與 issue 數一起判斷。</p>` },
+            'metric-kb-age': { title: '知識庫更新狀態 / KB 老化', body: `<h4>數據目的</h4><p>追蹤客戶知識內容是否仍符合現況。KB 太久未更新容易造成回答錯誤、幻覺或客戶不信任。</p><h4>如何判讀</h4><p>超過 60 天需提醒；超過 90 天且兜底率升高應列為風險；若是餐飲、零售、活動型客戶，更新週期應更短。</p><h4>建議行動</h4><p>請客戶補最新營業資訊、活動、FAQ，或由 CS 依高頻無效回答整理 KB 更新建議。</p>` },
+            'metric-device-heartbeat': { title: '硬體連線狀態 / 心跳', body: `<h4>數據目的</h4><p>確認 Kiosk、機器人或現場端應用是否持續在線，是判斷服務可用性的第一層訊號。</p><h4>如何判讀</h4><p>心跳中斷超過門檻通常代表網路、電源、設備休眠或程式崩潰，不應只解讀為使用者變少。</p><h4>建議行動</h4><p>優先通知現場窗口確認電源與網路，再請內部工程確認應用程式 log。</p>` },
+            'metric-meeting-summary': { title: '生成會議摘要數', body: `<h4>數據目的</h4><p>衡量 SecureMeet 類型服務的實際產出量，能代表客戶內部採用與價值感。</p><h4>如何判讀</h4><p>快速上升通常是導入成功；若上升伴隨客訴或成本異常，需檢查使用規則、權限與 token 成本。</p><h4>建議行動</h4><p>主動與客戶確認是否需要擴充部門、教育訓練或調整方案。</p>` },
+            'metric-speaker': { title: '語者辨識註冊數', body: `<h4>數據目的</h4><p>反映會議服務是否從少數測試者擴散到更多真實使用者。</p><h4>如何判讀</h4><p>註冊數增加代表 adoption 擴散；若摘要數增加但註冊數不動，可能集中在少數重度使用者。</p><h4>建議行動</h4><p>請 PM/CS 確認下一批導入名單與部門推廣節奏。</p>` },
+            'metric-prompt': { title: 'Prompt 模板修改', body: `<h4>數據目的</h4><p>追蹤客戶或內部團隊是否正在調整 AI 行為設定，作為導入活躍度與風險訊號。</p><h4>如何判讀</h4><p>頻繁修改可能代表積極優化，也可能表示需求尚未穩定；長期未修改則可能表示無人維護。</p><h4>建議行動</h4><p>若修改頻繁，建議建立版本紀錄與 regression test；若長期未維護，安排健康檢查。</p>` },
+            'metric-message-volume': { title: '近 30 天互動總句數', body: `<h4>數據目的</h4><p>衡量文字客服場景的需求量與使用者觸及程度。</p><h4>如何判讀</h4><p>持平不一定健康；若同時兜底率上升，代表需求仍在但回答品質下降。</p><h4>建議行動</h4><p>搭配熱門意圖與兜底清單判斷要補 KB、改 prompt 還是調整入口文案。</p>` },
+            'metric-fallback': { title: '兜底回答率 Fallback', body: `<h4>數據目的</h4><p>衡量 AI 無法回答或信心不足的比例，是 KB 缺口與 prompt 邊界問題的重要指標。</p><h4>如何判讀</h4><p>兜底率上升通常代表使用者問題超出現有知識庫，或檢索/關鍵詞命中不佳。</p><h4>建議行動</h4><p>優先整理高頻兜底問題，轉成 KB 補充、同義詞/勘誤詞或 prompt fallback policy 調整。</p>` },
+            'intent-chart': { title: '熱門意圖分佈', body: `<h4>數據目的</h4><p>把大量對話歸類成需求主題，讓 CS 知道客戶的使用者最常問什麼。</p><h4>如何判讀</h4><p>高頻意圖代表高價值內容區；若高頻意圖同時高兜底，代表最該優先補 KB。</p><h4>建議行動</h4><p>每週檢查 Top Intent，轉成客戶週報、KB 更新建議與產品需求洞察。</p>` },
+            'fallback-table': { title: '高頻無效回答清單', body: `<h4>數據目的</h4><p>直接列出 AI 沒答好的使用者原始問題，協助 CS 從「問題現象」追到「知識缺口」。</p><h4>如何判讀</h4><p>發生次數越高，代表越多使用者受到影響；若問題和營業資訊、價格、活動相關，通常需要客戶補資料。</p><h4>建議行動</h4><p>將高頻問題整理成 KB 更新任務，並標註需要客戶確認的欄位。</p>` },
+            'kb-table': { title: '全客戶 KB 健康度', body: `<h4>數據目的</h4><p>跨客戶追蹤 FAQ 數量、老化題數與最後維護日，用於預防回答品質下降。</p><h4>如何判讀</h4><p>FAQ 數多不代表品質好；老化比例高才是風險。POC 客戶若 KB 老化，會直接影響驗收與轉正。</p><h4>建議行動</h4><p>針對老化比例高的客戶發送更新提醒，必要時由 CS 先根據對話紀錄提出補 KB 草稿。</p>` },
+            'device-map': { title: '展機地圖與硬體狀態', body: `<h4>數據目的</h4><p>集中查看 Kiosk / 機器人等實體端點的網路、電源與所在地狀態。</p><h4>如何判讀</h4><p>若多台設備同地區同時異常，可能是場域網路；單台異常則可能是硬體或應用程式問題。</p><h4>建議行動</h4><p>未來可加入地圖、Ping 延遲、最後心跳、現場窗口與 SLA 倒數。</p>` },
+            'sop-panel': { title: '維運排障 SOP', body: `<h4>數據目的</h4><p>把異常訊號轉成標準處理流程，降低 CS 只看到紅燈但不知道下一步的落差。</p><h4>如何判讀</h4><p>SOP 先處理最可能且最容易排除的因素：網路、電源、場地、麥克風、應用程式版本。</p><h4>建議行動</h4><p>執行完成仍未恢復時，升級為 ticket 並附上已檢查項目，避免工程團隊重複追問。</p>` }
+        };
+
+        function openPurpose(evt, key) {
+            if (evt) evt.stopPropagation();
+            const doc = purposeDocs[key] || purposeDocs.overview;
+            document.getElementById('purposeTitle').innerText = doc.title;
+            document.getElementById('purposeBody').innerHTML = doc.body;
+            document.getElementById('purposeOverlay').classList.add('active');
+        }
+
+        function closePurpose(evt) {
+            if (evt) evt.stopPropagation();
+            document.getElementById('purposeOverlay').classList.remove('active');
+        }
+
+        document.addEventListener('keydown', (evt) => {
+            if (evt.key === 'Escape') closePurpose(evt);
+        });
+
         // 1. 時間更新邏輯
         function updateTime() {
             const timeEl = document.getElementById('currentTime');
