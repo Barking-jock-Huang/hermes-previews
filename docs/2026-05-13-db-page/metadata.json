@@ -1,7 +1,7 @@
 {
   "preview_id": "2026-05-13-db-page",
-  "title": "愛吠的狗 - CSM 總戰情儀表板",
+  "title": "AI AMAZE 客戶產品使用狀態 Dashboard",
   "updated_by": "Hermes",
   "updated_at": "2026-05-19",
-  "change_summary": "補完整 Dashboard 指標說明；將「展機地圖與硬體狀態建置中」改為實際假資料表格與硬體 KPI，不再使用空白置中佔位區。"
+  "change_summary": "依使用者指示改為給 RD/PM 溝通的產品使用狀態觀測版：聚焦想觀察什麼、目標與初步指標，不先設計複雜算法；包含產品使用總覽、AI回答品質、KB/角色設定、載具/語音/系統、功能採用矩陣與完整說明。"
 }
