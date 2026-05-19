@@ -3,5 +3,5 @@
   "title": "AI AMAZE 客戶產品使用狀態 Dashboard",
   "updated_by": "Hermes",
   "updated_at": "2026-05-19",
-  "change_summary": "新增 P0/P1/P2 指標優先級；將熱門意圖與高頻未覆蓋問題後移為 P2 探索；簡化系統狀態；將原本需點擊 ? 的說明改為直接顯示在區塊旁或底下。"
+  "change_summary": "調整頁面文案為 PM/主管檢視語氣，移除寫給操作者的說明措辭；保留 P0/P1/P2 優先級、進階 AI 品質探索與簡易系統狀態方向。"
 }
