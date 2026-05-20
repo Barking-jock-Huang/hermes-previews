@@ -341,7 +341,7 @@
                 data-tab="${tab.name}"
               >
                 ${tab.name}
-                ${activeTab === tab.name ? milestoneBadge(tab.m) : ""}
+                ${milestoneBadge(tab.m)}
               </button>
             `).join("")}
           </nav>
