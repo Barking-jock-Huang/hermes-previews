@@ -13,9 +13,280 @@
 
 <section class="section grid3"><div class="card"><div class="label">資料源類型</div><div class="num">8</div><p>包含目前可取得、建議補強與可由 AI 分類產生的事件資料。</p></div><div class="card"><div class="label">報表模板</div><div class="num">7</div><p>每張報表定義計算頻率、欄位、公式與視覺型態。</p></div><div class="card"><div class="label">視覺模板</div><div class="num">5</div><p>以可視化樣板示範資訊如何被 PM / RD / CS 理解。</p></div></section>
 
-<section class="section"><div class="head"><h2>1. 需要的數據源：從使用行為取得哪些有意義記錄</h2><div class="note">以下包含目前已有、需要標準化、以及目前沒有但建議新增的資料。</div></div><div class="sourceGrid">
-<div class="source"><h3>Conversation / Message Event</h3><div class="status"><span class="pill">部分現有 / 建議補強</span></div><p><b>事件例：</b>conversation_started, message_sent, response_returned, conversation_closed</p><p><b>欄位例：</b><span class="mono">project_id, character_id, session_id, user_id_hash, timestamp, channel, language, role, message_text, response_id</span></p><p><b>用途：</b>建立互動量、回合數、問題類型、尖峰時段、使用者任務路徑。</p></div><div class="source"><h3>RAG / Knowledge Retrieval Trace</h3><div class="status"><span class="pill">建議標準化</span></div><p><b>事件例：</b>kb_search_started, kb_hit, kb_miss, retrieved_chunk_used</p><p><b>欄位例：</b><span class="mono">query, rewritten_query, knowledge_id, record_id, retrieved_title, score, rank, used_in_answer, no_result_reason</span></p><p><b>用途：</b>知道哪些知識有用、哪些問題找不到答案、哪些 KB 需要補。</p></div><div class="source"><h3>Answer Quality / Review Event</h3><div class="status"><span class="pill">建議新增</span></div><p><b>事件例：</b>answer_reviewed, user_feedback, cs_label_added</p><p><b>欄位例：</b><span class="mono">answer_id, label, issue_type, reviewer_role, confidence, expected_answer, correction_note</span></p><p><b>用途：</b>產生正確率、部分正確率、錯誤原因分布、優化前後改善率。</p></div><div class="source"><h3>Channel / Device Behavior</h3><div class="status"><span class="pill">部分現有 / 建議補強</span></div><p><b>事件例：</b>device_online, device_heartbeat, widget_opened, kiosk_interaction_started</p><p><b>欄位例：</b><span class="mono">device_id, channel_type, location, app_version, online_status, last_seen_at, touch_count, idle_time_sec</span></p><p><b>用途：</b>區分沒人用、設備離線、現場入口異常、載具設計摩擦。</p></div><div class="source"><h3>Voice / Multimodal Event</h3><div class="status"><span class="pill">建議新增</span></div><p><b>事件例：</b>stt_started, stt_success, tts_success, voice_interrupted</p><p><b>欄位例：</b><span class="mono">language, stt_latency_ms, tts_latency_ms, transcript, confidence, failure_reason, audio_duration_sec</span></p><p><b>用途：</b>觀察語音體驗、外語使用、辨識失敗、現場噪音或互動中斷。</p></div><div class="source"><h3>User Intent / Task Classification</h3><div class="status"><span class="pill">建議由 AI 分類產生</span></div><p><b>事件例：</b>intent_classified, task_completed, task_abandoned</p><p><b>欄位例：</b><span class="mono">intent, sub_intent, task_stage, urgency, location_related, commerce_related, service_related</span></p><p><b>用途：</b>把熱門詞升級為熱門任務，支援 UX、營運與 ROI 判斷。</p></div><div class="source"><h3>Admin / Content Maintenance Event</h3><div class="status"><span class="pill">建議新增</span></div><p><b>事件例：</b>kb_record_created, kb_record_updated, prompt_published, script_test_run</p><p><b>欄位例：</b><span class="mono">admin_id_hash, project_id, object_type, object_id, action, diff_summary, publish_status</span></p><p><b>用途：</b>連結內容維護行為與回答品質變化，知道改善是否真的有效。</p></div><div class="source"><h3>Cost / Resource Usage</h3><div class="status"><span class="pill">建議新增或估算</span></div><p><b>事件例：</b>llm_usage_recorded, stt_usage_recorded, tts_usage_recorded</p><p><b>欄位例：</b><span class="mono">model, input_tokens, output_tokens, audio_seconds, unit_cost, estimated_cost, cache_hit</span></p><p><b>用途：</b>支援 ROI：互動價值、人工節省、LLM/語音成本、專案毛利觀察。</p></div>
-</div></section>
+<section class="section"><div class="head"><h2>1. 需要的數據源：逐事件清單與意思</h2><div class="note">先把「每一筆資訊是什麼、何時產生、可能從哪裡來」講清楚，才方便討論現有系統有沒有、缺哪裡。</div></div><div class="card"><p>閱讀方式：每一列是一個建議記錄的事件。事件不一定都已經存在；重點是先定義它的意義、來源與欄位，後續才能判斷要從 AI AMAZE 後台、Widget、Kiosk、RAG、LLM gateway、語音服務或人工標註哪裡取得。</p></div><div class="groupTitle"><h3>A. 對話與訊息事件</h3><div class="line"></div></div><div class="eventList"><div class="eventItem">
+  <div><div class="eventName">對話開始</div><code class="eventCode">conversation_started</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>使用者開啟 Widget / Kiosk / Robot / API 對話，或第一次送出訊息而形成一個 session。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>session 建立時；若只是頁面載入但未互動，可另記 widget_opened。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>前端 SDK、Widget、Kiosk/Robot client、API gateway。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">project_id</span></li><li><span class="mono">character_id</span></li><li><span class="mono">session_id</span></li><li><span class="mono">channel</span></li><li><span class="mono">device_id</span></li><li><span class="mono">user_id_hash</span></li><li><span class="mono">started_at</span></li><li><span class="mono">entry_url / location</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>這個專案有沒有人真的開始互動？主要入口在哪？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">使用者送出訊息</div><code class="eventCode">user_message_sent</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>使用者輸入文字、語音轉文字、點擊 quick reply 或按鈕所形成的問題 / 指令。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>每次使用者送出內容時。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>Chat UI、STT transcript、button click handler。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">message_id</span></li><li><span class="mono">session_id</span></li><li><span class="mono">message_type</span></li><li><span class="mono">text</span></li><li><span class="mono">language</span></li><li><span class="mono">channel</span></li><li><span class="mono">input_method</span></li><li><span class="mono">timestamp</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>使用者實際問了什麼？哪些是有效問題、哪些只是寒暄或誤觸？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">AI 回覆完成</div><code class="eventCode">assistant_response_returned</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>AI 產生並回傳一則回答，包含是否引用 KB、是否 fallback、花費時間。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>每次 assistant response 完成或失敗時。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>LLM service、RAG pipeline、chat backend。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">response_id</span></li><li><span class="mono">message_id</span></li><li><span class="mono">llm_status</span></li><li><span class="mono">response_text</span></li><li><span class="mono">latency_ms</span></li><li><span class="mono">token_in</span></li><li><span class="mono">token_out</span></li><li><span class="mono">fallback_used</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>回答速度是否正常？哪些問題常進入 fallback 或失敗？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">對話結束 / 逾時</div><code class="eventCode">conversation_closed</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>session 被使用者關閉、閒置超時，或完成任務後結束。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>離開頁面、timeout、device idle、explicit close。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>前端 session manager、device client、backend timeout job。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">session_id</span></li><li><span class="mono">ended_at</span></li><li><span class="mono">duration_sec</span></li><li><span class="mono">turn_count</span></li><li><span class="mono">close_reason</span></li><li><span class="mono">completed_flag</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>對話有沒有完成？使用者是否常中途離開？</div>
+  </div>
+</div></div><div class="groupTitle"><h3>B. 知識檢索與回答依據</h3><div class="line"></div></div><div class="eventList"><div class="eventItem">
+  <div><div class="eventName">RAG 查詢開始</div><code class="eventCode">kb_search_started</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>系統根據使用者問題或改寫後問題開始查 KB / FAQ / 文件。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>每次需要檢索知識時。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>RAG service、retriever。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">query</span></li><li><span class="mono">rewritten_query</span></li><li><span class="mono">project_id</span></li><li><span class="mono">character_id</span></li><li><span class="mono">search_mode</span></li><li><span class="mono">timestamp</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>使用者問題被如何拿去查知識？是否需要 query rewrite？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">知識命中</div><code class="eventCode">kb_hit</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>檢索回傳可用知識片段，且分數達到門檻。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>retriever 回傳結果後。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>Vector DB / search index、RAG trace。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">knowledge_id</span></li><li><span class="mono">record_id</span></li><li><span class="mono">retrieved_title</span></li><li><span class="mono">score</span></li><li><span class="mono">rank</span></li><li><span class="mono">threshold</span></li><li><span class="mono">used_in_answer</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>哪些 KB 真的被用到？哪些問題有可回答依據？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">知識未命中</div><code class="eventCode">kb_miss</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>沒有找到足夠相關的知識，或找到但分數低於門檻。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>retriever 無結果或低分時。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>RAG service。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">query</span></li><li><span class="mono">top_score</span></li><li><span class="mono">miss_reason</span></li><li><span class="mono">intent</span></li><li><span class="mono">language</span></li><li><span class="mono">fallback_policy</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>哪些問題是知識缺口？需要補 KB 還是改檢索策略？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">引用知識片段</div><code class="eventCode">retrieved_chunk_used</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>LLM 回答時實際採用某段檢索內容。和 kb_hit 不同：hit 只是找到，used 是真的被回答使用。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>回答生成後記錄引用來源。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>RAG prompt builder、answer generator。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">response_id</span></li><li><span class="mono">record_id</span></li><li><span class="mono">chunk_id</span></li><li><span class="mono">title</span></li><li><span class="mono">score</span></li><li><span class="mono">citation_position</span></li><li><span class="mono">content_version</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>回答依據是否可追溯？哪段內容造成錯誤或正確回答？</div>
+  </div>
+</div></div><div class="groupTitle"><h3>C. 品質、回饋與人工檢核</h3><div class="line"></div></div><div class="eventList"><div class="eventItem">
+  <div><div class="eventName">使用者回饋</div><code class="eventCode">user_feedback_submitted</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>使用者對回答按讚 / 倒讚 / 選擇原因 / 留文字回饋。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>使用者在回答後點擊 feedback 或填表。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>Chat UI feedback component。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">response_id</span></li><li><span class="mono">feedback_type</span></li><li><span class="mono">reason</span></li><li><span class="mono">comment</span></li><li><span class="mono">timestamp</span></li><li><span class="mono">channel</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>使用者覺得哪些回答有幫助？哪些回答讓人不滿？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">人工標註回答品質</div><code class="eventCode">answer_reviewed</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>內部人員或客戶管理者對回答標記正確、部分正確、錯誤、需補 KB 等。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>後台 review 對話或抽樣檢查時。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>後台對話紀錄 / QA review 工具。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">response_id</span></li><li><span class="mono">reviewer_role</span></li><li><span class="mono">label</span></li><li><span class="mono">issue_type</span></li><li><span class="mono">expected_answer</span></li><li><span class="mono">correction_note</span></li><li><span class="mono">reviewed_at</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>回答錯在哪？是 KB 缺、檢索錯、prompt 問題、還是資料過期？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">AI 自動品質判斷</div><code class="eventCode">answer_quality_judged</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>用 LLM judge 或規則對回答做初步分類，例如是否答非所問、是否缺引用、是否低信心。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>回答完成後批次或即時計算。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>Evaluation service、離線批次。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">response_id</span></li><li><span class="mono">judge_model</span></li><li><span class="mono">quality_score</span></li><li><span class="mono">relevance_score</span></li><li><span class="mono">issue_tags</span></li><li><span class="mono">confidence</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>大量對話中哪些需要優先人工看？品質趨勢是否變好？</div>
+  </div>
+</div></div><div class="groupTitle"><h3>D. 入口、裝置與現場使用</h3><div class="line"></div></div><div class="eventList"><div class="eventItem">
+  <div><div class="eventName">入口開啟</div><code class="eventCode">entry_opened</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>使用者打開 web widget、進入 kiosk 首頁、掃 QR code 或呼叫 API 入口。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>入口被載入或開啟時。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>前端 SDK、Kiosk app、API gateway。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">entry_type</span></li><li><span class="mono">project_id</span></li><li><span class="mono">device_id</span></li><li><span class="mono">url</span></li><li><span class="mono">referrer</span></li><li><span class="mono">location</span></li><li><span class="mono">opened_at</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>有多少人到達入口但沒有開始問問題？入口設計是否造成流失？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">裝置心跳</div><code class="eventCode">device_heartbeat</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>Kiosk、Robot、平板等載具定期回報在線狀態、版本與位置。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>固定間隔，例如每 1-5 分鐘。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>Device agent、MDM、Kiosk/Robot client。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">device_id</span></li><li><span class="mono">project_id</span></li><li><span class="mono">status</span></li><li><span class="mono">app_version</span></li><li><span class="mono">network_status</span></li><li><span class="mono">battery</span></li><li><span class="mono">last_seen_at</span></li><li><span class="mono">location</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>使用下降是沒需求，還是設備離線 / 網路異常？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">操作中斷</div><code class="eventCode">interaction_abandoned</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>使用者開始操作但未送出問題、未收到回答、或停在某步驟直到 timeout。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>idle timeout、route change、session close without completion。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>前端 analytics、session tracker。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">session_id</span></li><li><span class="mono">step</span></li><li><span class="mono">duration_sec</span></li><li><span class="mono">last_action</span></li><li><span class="mono">abandon_reason</span></li><li><span class="mono">device_id</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>哪個入口或流程最容易卡住？UX 哪裡需要改善？</div>
+  </div>
+</div></div><div class="groupTitle"><h3>E. 語音、多語與多模態</h3><div class="line"></div></div><div class="eventList"><div class="eventItem">
+  <div><div class="eventName">語音辨識完成 / 失敗</div><code class="eventCode">stt_completed / stt_failed</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>使用者語音被轉成文字，或因噪音、語言、服務錯誤而失敗。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>每次 voice input 後。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>STT service、device microphone client。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">audio_duration_sec</span></li><li><span class="mono">language</span></li><li><span class="mono">transcript</span></li><li><span class="mono">confidence</span></li><li><span class="mono">latency_ms</span></li><li><span class="mono">failure_reason</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>語音入口是否可用？失敗是現場噪音、語言、還是 STT 服務問題？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">語音播放完成 / 中斷</div><code class="eventCode">tts_completed / tts_interrupted</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>AI 回答被轉成語音並播放，或被使用者打斷 / 播放失敗。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>每次 TTS output 後。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>TTS service、device speaker client。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">response_id</span></li><li><span class="mono">voice_id</span></li><li><span class="mono">audio_duration_sec</span></li><li><span class="mono">latency_ms</span></li><li><span class="mono">interrupted_at_sec</span></li><li><span class="mono">failure_reason</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>回答是否真的被聽完？語音體驗是否太慢或太長？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">語言偵測 / 切換</div><code class="eventCode">language_detected / language_switched</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>系統判斷使用者語言，或使用者在同一 session 中切換語言。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>訊息進來後或語言設定改變時。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>Language detector、chat backend。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">session_id</span></li><li><span class="mono">detected_language</span></li><li><span class="mono">previous_language</span></li><li><span class="mono">confidence</span></li><li><span class="mono">message_id</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>外語使用比例如何？哪些語言品質或覆蓋需要加強？</div>
+  </div>
+</div></div><div class="groupTitle"><h3>F. 意圖、任務與 ROI</h3><div class="line"></div></div><div class="eventList"><div class="eventItem">
+  <div><div class="eventName">意圖分類</div><code class="eventCode">intent_classified</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>將使用者問題分類成可討論的任務類型，例如交通停車、營業時間、設施位置、購物、活動。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>每則 user message 後即時或批次分類。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>LLM classifier、rules、BI batch。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">message_id</span></li><li><span class="mono">intent</span></li><li><span class="mono">sub_intent</span></li><li><span class="mono">confidence</span></li><li><span class="mono">classifier_version</span></li><li><span class="mono">is_service_request</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>使用者真正想完成什麼任務？熱門詞背後的需求是什麼？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">任務完成判斷</div><code class="eventCode">task_completed / task_unresolved</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>判斷該 session 是否成功回答或完成任務，例如取得停車資訊、找到廁所、完成導覽。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>session 結束後或使用者回饋後。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>Session analyzer、feedback、manual review。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">session_id</span></li><li><span class="mono">intent</span></li><li><span class="mono">completed_flag</span></li><li><span class="mono">completion_signal</span></li><li><span class="mono">unresolved_reason</span></li><li><span class="mono">estimated_saved_minutes</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>AI 是否真的幫使用者完成事情？可轉換成多少服務價值？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">成本紀錄</div><code class="eventCode">resource_usage_recorded</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>記錄 LLM、Embedding、STT、TTS、工具 API 等成本與用量。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>每次模型 / 語音 / 工具服務呼叫後。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>LLM gateway、billing logs、service middleware。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">request_id</span></li><li><span class="mono">service_type</span></li><li><span class="mono">model</span></li><li><span class="mono">tokens</span></li><li><span class="mono">audio_seconds</span></li><li><span class="mono">api_calls</span></li><li><span class="mono">unit_cost</span></li><li><span class="mono">estimated_cost</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>互動帶來的價值是否大於成本？哪個專案或功能成本最高？</div>
+  </div>
+</div><div class="eventItem">
+  <div><div class="eventName">內容維護</div><code class="eventCode">kb_record_updated / prompt_published</code></div>
+  <div>
+    <div class="eventMeta">
+      <div class="miniBox"><b>這是什麼</b><span>後台管理者新增/修改 KB、發布 prompt、調整角色設定或測試腳本。</span></div>
+      <div class="miniBox"><b>何時產生</b><span>每次後台內容或設定變更。</span></div>
+      <div class="miniBox"><b>可能從哪裡來</b><span>AI AMAZE admin backend、audit log。</span></div>
+      <div class="miniBox"><b>關鍵欄位</b><ul><li><span class="mono">admin_id_hash</span></li><li><span class="mono">object_type</span></li><li><span class="mono">object_id</span></li><li><span class="mono">action</span></li><li><span class="mono">diff_summary</span></li><li><span class="mono">version</span></li><li><span class="mono">published_at</span></li></ul></div>
+      <div class="miniBox"><b>資料型態</b><span>事件 log；可彙總成日 / 週 / 月報表，也可回查單筆 session。</span></div>
+      <div class="miniBox"><b>可討論的有無問題</b><span>目前是否已有？欄位是否完整？是否可追到 project / character / session / channel？</span></div>
+    </div>
+    <div class="discussion"><b>這筆資料可以回答：</b>內容更新後品質有沒有變好？誰改了什麼導致回答變化？</div>
+  </div>
+</div></div></section>
 
 <section class="section"><div class="head"><h2>2. 這些數據源要產生什麼資訊：報表欄位與定義</h2><div class="note">每張報表都要能追溯到 event / field / formula，避免只有漂亮圖表。</div></div><div class="card"><table><thead><tr><th>報表</th><th>計算頻率 / 維度</th><th>欄位</th><th>定義 / 公式</th><th>建議視覺</th></tr></thead><tbody>
 <tr><td><b>使用行為總覽</b></td><td>日 / 週 / 月；專案 × 入口</td><td>互動數、session 數、有效問題數、平均回合、活躍裝置、尖峰時段</td><td>有效問題數 = user message 扣除 greeting / idle / system trigger；平均回合 = user+assistant message pair。</td><td>KPI + 趨勢線 + 入口堆疊圖</td></tr><tr><td><b>需求 / 意圖分析</b></td><td>日 / 週；專案 × intent</td><td>意圖、問題數、佔比、成長率、代表性問題、關聯 KB、入口來源</td><td>同一 session 內相同 intent 可去重或保留，需標明算法；佔比 = intent 問題數 / 有效問題數。</td><td>Treemap / Pareto bar / 代表問題表</td></tr><tr><td><b>知識覆蓋與缺口</b></td><td>日 / 週；intent × KB</td><td>KB hit rate、miss rate、低分檢索率、未覆蓋問題 Top N、建議補 KB 主題</td><td>KB hit = retrieved score >= threshold 且 used_in_answer=true；miss = no result 或 fallback。</td><td>Coverage matrix + gap queue</td></tr><tr><td><b>回答品質</b></td><td>週 / 月；角色 × intent</td><td>通過率、部分通過率、錯誤率、低信心率、人工標註數、錯誤類型</td><td>通過率 = reviewed pass / reviewed total；低信心可用 similarity 或 LLM judge confidence。</td><td>品質漏斗 + issue stacked bar</td></tr><tr><td><b>入口 / 載具表現</b></td><td>日 / 週；channel × device</td><td>入口互動量、裝置在線率、最後心跳、啟動率、平均停留、操作中斷率</td><td>裝置在線率 = 有心跳裝置 / 已註冊裝置；中斷 = session 無完成/超時。</td><td>入口分布 + device health table</td></tr><tr><td><b>語音與多語體驗</b></td><td>週 / 月；language × channel</td><td>語言分布、STT 成功率、TTS 成功率、語音重試率、外語回答品質</td><td>STT 成功率 = successful transcript / voice input attempts；多語品質需抽樣或 AI judge。</td><td>語言 heatmap + voice reliability cards</td></tr><tr><td><b>ROI / 服務價值估算</b></td><td>月；專案 × intent</td><td>可替代人工問題數、估算節省分鐘、估算人工成本、AI 成本、淨效益、改善後增益</td><td>淨效益 = 節省人工成本 - LLM/STT/TTS 成本；需可調整假設參數。</td><td>ROI waterfall + assumption panel</td></tr>
