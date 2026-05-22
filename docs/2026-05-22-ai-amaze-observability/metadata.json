@@ -1,6 +1,7 @@
 {
   "preview_id": "2026-05-22-ai-amaze-observability",
   "title": "AI AMAZE 數據源與可視化模板",
-  "updated_focus": "data sources, report definitions, visualization templates",
-  "note": "Removed P0/P1/P2 framing per user feedback."
+  "updated_focus": "event-by-event data source definitions; report definitions; visualization templates",
+  "note": "Removed P0/P1/P2 framing per user feedback.",
+  "data_source_section": "rewritten as clear event list with meaning, trigger timing, source, fields, and discussion question"
 }
