@@ -1,8 +1,9 @@
 {
   "preview_id": "2026-05-22-ai-amaze-observability",
   "title": "AI AMAZE 數據源與可視化模板",
-  "updated_focus": "readable event form/table; report definitions; visualization templates",
-  "note": "Removed P0/P1/P2 framing per user feedback.",
-  "data_source_section": "rewritten as spreadsheet-style event form/table, one row per event",
-  "visualization_section": "upgraded to formal dashboard mockup with date/project/channel/language filters, KPI, trend, intent, coverage, quality, heatmap, ROI calculator, and action queue"
+  "updated_focus": "AI AMAZE-like visual skin: light lavender/white admin shell, sidebar, topbar, brand purple, softer cards/tables",
+  "note": "Content structure preserved; visual style adjusted to be closer to current AI AMAZE app/admin appearance.",
+  "data_source_section": "spreadsheet-style event form/table, one row per event",
+  "visualization_section": "formal dashboard mockup with date/project/channel/language filters, KPI, trend, intent, coverage, quality, heatmap, ROI calculator, and action queue",
+  "visual_update_date": "2026-05-25"
 }
