@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AMAZEXPO 365 策展展示入口 | Hermes Preview</title>
+    <meta
+      name="description"
+      content="A single curator-facing entry point for the AMAZEXPO 365 exhibitor, organizer, and buyer preview demos."
+    >
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231769e0'/%3E%3Cpath d='M9 23 16 7l7 16h-4l-1.2-3.1h-3.6L13 23H9Zm6.1-6.2h1.8L16 13.6l-.9 3.2Z' fill='white'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="./assets/style.css?v=202605261220">
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+    <script src="./assets/script.js?v=202605261220" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="../" aria-label="回到 Hermes Preview Gallery">
+          <span class="brand-mark">A</span>
+          <span>AMAZEXPO 365</span>
+        </a>
+        <span class="audience-label">外部策展商展示入口</span>
+      </header>
+
+      <main>
+        <section class="intro" aria-labelledby="page-title">
+          <div class="intro-copy">
+            <p class="eyebrow">Curator Preview</p>
+            <h1 id="page-title">三種角色視角，一個展示入口</h1>
+            <p>
+              整合參展商商機平台、主辦方營運後台與買主端體驗，保留現有互動流程，整理為適合外部策展商快速瀏覽的展示版本。
+            </p>
+          </div>
+          <div class="signal-grid" aria-label="展示重點">
+            <div>
+              <strong>3</strong>
+              <span>角色入口</span>
+            </div>
+            <div>
+              <strong>1</strong>
+              <span>同頁切換</span>
+            </div>
+            <div>
+              <strong>0</strong>
+              <span>階段標示</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="selector" aria-label="選擇展示視角">
+          <div class="selector-head">
+            <h2>選擇視角</h2>
+            <div class="view-status" id="active-status" aria-live="polite"></div>
+          </div>
+          <div class="demo-grid" id="demo-selector"></div>
+        </section>
+
+        <section class="viewer" aria-label="展示畫面">
+          <div class="viewer-toolbar">
+            <div>
+              <span class="viewer-kicker" id="viewer-kicker"></span>
+              <h2 id="viewer-title"></h2>
+            </div>
+            <button class="reload-button" type="button" id="reload-demo">
+              <i data-lucide="refresh-cw" aria-hidden="true"></i>
+              <span>重新載入</span>
+            </button>
+          </div>
+          <div class="frame-wrap">
+            <iframe id="demo-frame" title="AMAZEXPO 365 展示畫面"></iframe>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
