@@ -79,11 +79,11 @@ iframe {
 main {
   width: min(1480px, calc(100% - 36px));
   margin: 0 auto;
-  padding: 28px 0 36px;
+  padding: 18px 0 36px;
 }
 
 .intro {
-  display: grid;
+  display: none;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
   gap: 28px;
   align-items: end;
