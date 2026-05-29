@@ -1,6 +1,33 @@
 {
   "generated_at": "2026-05-22T04:19:49.670794+00:00",
   "month": "202605",
+  "observability_requirements": [
+    {
+      "key": "game_event_recorded",
+      "label": "遊戲與機台延伸功能事件格式",
+      "requirement": "AMAZE 機台除了對話外，可能有小遊戲開始、完成、重試、獎勵、掃描、任務、分數與後續提問等延伸功能，應以結構化事件記錄。"
+    },
+    {
+      "key": "retail_click_tracked",
+      "label": "零售版點擊時間戳記",
+      "requirement": "零售版點擊資料需保留源頭 DB 的分鐘級或更細時間戳記，因 GA 匯入資料無法支援這種細緻行為觀察。"
+    },
+    {
+      "key": "click_conversation_linked",
+      "label": "點擊與對話關聯",
+      "requirement": "點擊應能關聯到 session、message、response 與 intent，讓團隊分析 UI 操作和使用者問題、AI 回答之間的關係。"
+    },
+    {
+      "key": "backend_test_resource_recorded",
+      "label": "後台測試作為 resource",
+      "requirement": "後台、管理端與 QA 測試應視為獨立 resource 類型，讓測試流量可被觀察，但不混入正式使用者行為。"
+    },
+    {
+      "key": "language_judged_by_ai",
+      "label": "AI 語言判定",
+      "requirement": "語言報表應使用 AI 判定標籤與可選原因，不把原始語言偵測機率當成最終語言結論。"
+    }
+  ],
   "projects": [
     {
       "title": "【付費】林百貨",
