@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234b2cff'/%3E%3Ctext x='32' y='39' font-size='24' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-weight='700'%3EAI%3C/text%3E%3C/svg%3E">
 <title>AI AMAZE 數據源與可視化模板</title>
 <style>
 
@@ -265,11 +266,11 @@
   <div class="dashTop">
     <div class="dashTitle"><h3>AI AMAZE 使用觀測 Dashboard</h3><p>讓 USER 從互動、需求、品質、入口與 ROI 五個面向理解 AI Agent 的成果與缺口。</p></div>
     <div class="filters">
-      <div class="filter"><label>起始日期</label><input id="startDate" type="date" value="2026-05-01"></div>
-      <div class="filter"><label>結束日期</label><input id="endDate" type="date" value="2026-05-22"></div>
-      <div class="filter"><label>專案</label><select id="projectFilter"><option>全部專案</option><option>林百貨</option><option>南門市場</option><option>壽山動物園</option></select></div>
-      <div class="filter"><label>入口</label><select id="channelFilter"><option>全部入口</option><option>Web Widget</option><option>Kiosk</option><option>Robot</option><option>API</option><option>Voice</option></select></div>
-      <div class="filter"><label>語言</label><select id="langFilter"><option>全部語言</option><option>中文</option><option>英文</option><option>日文</option><option>韓文</option></select></div>
+      <div class="filter"><label for="startDate">起始日期</label><input id="startDate" type="date" value="2026-05-01"></div>
+      <div class="filter"><label for="endDate">結束日期</label><input id="endDate" type="date" value="2026-05-22"></div>
+      <div class="filter"><label for="projectFilter">專案</label><select id="projectFilter"><option>全部專案</option><option>林百貨</option><option>南門市場</option><option>壽山動物園</option></select></div>
+      <div class="filter"><label for="channelFilter">入口</label><select id="channelFilter"><option>全部入口</option><option>Web Widget</option><option>Kiosk</option><option>Robot</option><option>API</option><option>Voice</option></select></div>
+      <div class="filter"><label for="langFilter">語言</label><select id="langFilter"><option>全部語言</option><option>中文</option><option>英文</option><option>日文</option><option>韓文</option></select></div>
       <button class="applyBtn" id="applyFilters">套用檢視</button>
     </div>
   </div>
