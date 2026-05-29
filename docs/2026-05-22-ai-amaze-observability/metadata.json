@@ -1,9 +1,9 @@
 {
   "preview_id": "2026-05-22-ai-amaze-observability",
   "title": "AI AMAZE 數據源與可視化模板",
-  "updated_focus": "Use 2026-05-22-ai-amaze-observability as the source artifact; exclude the prior Excel from this version.",
-  "note": "Page framing now states the correct source content and clarifies that the existing Excel is out of scope.",
+  "updated_focus": "Use 2026-05-22-ai-amaze-observability as the source artifact; exclude the prior Excel from this version; include the same new observability requirements as the English version.",
+  "note": "Chinese version now includes machine/game extension events, retail minute-level click timestamps, click-to-conversation linkage, backend tests as a resource, and AI language judgment.",
   "data_source_section": "spreadsheet-style event form/table, one row per event",
-  "visualization_section": "formal dashboard mockup with date/project/channel/language filters, KPI, trend, intent, coverage, quality, heatmap, ROI calculator, and action queue",
+  "visualization_section": "formal dashboard mockup with date/project/channel/language filters, KPI, trend, intent, coverage, quality, AI language heatmap, retail click-to-conversation timeline, machine/backend-test resource panel, ROI calculator, and action queue",
   "visual_update_date": "2026-05-29"
 }
