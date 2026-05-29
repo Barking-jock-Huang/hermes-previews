@@ -20,7 +20,7 @@
 <body><div class="appShell"><aside class="sidebar"><div class="brand"><span class="brandMark">AI</span><span>AI AMAZE</span></div><nav class="nav"><a class="active"><span>⌁</span>數據觀測</a><a><span>▦</span>專案管理</a><a><span>◌</span>角色設定</a><a><span>▤</span>知識庫</a><a><span>◎</span>分析報表</a><a><span>⚙</span>系統設定</a></nav><div class="sidebarFoot">Preview skin：以 AI AMAZE 登入頁的淡紫、白底、品牌紫與輕量後台框架重整。</div></aside><main class="mainArea"><header class="topbar"><div><div class="crumb"><b>AI AMAZE</b> / 分析報表 / 使用觀測設計</div></div><div class="topActions"><div class="searchBox">搜尋專案、角色或報表</div><div class="userChip"><span class="avatar">J</span>Admin</div></div></header><div class="wrap">
 <section class="hero"><div class="heroMain"><span class="eyebrow">AI AMAZE · Data Source & Reporting Template</span><h1>使用行為數據源、報表欄位定義與可視化模板</h1><p>本頁依據 2026-05-22-ai-amaze-observability 的使用觀測內容，定義 AI AMAZE 後台應收集哪些數據源、這些數據源可產生哪些頻率 / 類型 / 比例 / 報表欄位，以及用可視化模板示範未來後台可以如何呈現。</p></div><aside class="side"><div class="sideBox"><b>內容依據</b><span class="small">以 2026-05-22-ai-amaze-observability 為正本；既有 Excel 已排除於本版範圍。</span></div><div class="sideBox"><b>1. 數據源</b><span class="small">從對話、檢索、語音、裝置、管理行為、成本等使用行為取得記錄。</span></div><div class="sideBox"><b>2. 報表定義</b><span class="small">定義每張報表的頻率、維度、欄位、公式與判讀方式。</span></div><div class="sideBox"><b>3. 可視化模板</b><span class="small">用範例圖表展示：需求意圖、知識覆蓋、品質漏斗、入口健康與 ROI。</span></div></aside></section>
 
-<section class="section grid3"><div class="card"><div class="label">資料源類型</div><div class="num">8</div><p>包含目前可取得、建議補強與可由 AI 分類產生的事件資料。</p></div><div class="card"><div class="label">報表模板</div><div class="num">7</div><p>每張報表定義計算頻率、欄位、公式與視覺型態。</p></div><div class="card"><div class="label">視覺模板</div><div class="num">5</div><p>以可視化樣板示範資訊如何被 PM / RD / CS 理解。</p></div></section>
+<section class="section grid3"><div class="card"><div class="label">資料源類型</div><div class="num">10</div><p>包含目前可取得、建議補強與可由 AI 分類產生的事件資料。</p></div><div class="card"><div class="label">報表模板</div><div class="num">9</div><p>每張報表定義計算頻率、欄位、公式與視覺型態。</p></div><div class="card"><div class="label">視覺模板</div><div class="num">7</div><p>涵蓋使用、意圖、知識覆蓋、品質、入口、點擊對話關聯、後台測試 resource 與 ROI。</p></div></section>
 
 <section class="section"><div class="head"><h2>1. 需要的數據源：事件表單</h2><div class="note">一列一個事件，方便逐項討論：現在有沒有、從哪裡來、缺哪些欄位。</div></div>
 <div class="card"><p>閱讀方式：這裡用「表格 / 事件清單」方式定義事件。每一列不是畫面功能，而是一筆應該被記錄的資訊。後續可以在「目前是否有」與「可能來源」欄逐項標記 AI AMAZE 現況。</p><div class="legendGrid"><div><b>事件</b>系統應記錄的使用行為或狀態。</div><div><b>來源</b>可能產生資料的系統位置。</div><div><b>關鍵欄位</b>報表計算與追溯需要的最小欄位。</div><div><b>討論狀態</b>用來開會確認：已有、部分有、需新增、需標準化。</div></div></div>
@@ -178,6 +178,28 @@
 <td>是否能定義完成/中斷</td>
 <td>哪個入口或流程容易卡住？</td>
 <td><span class="pill">待確認來源</span></td>
+</tr><tr>
+<td class="eventTd">零售版點擊追蹤<code class="eventCode2">retail_click_tracked</code></td>
+<td>記錄零售版每一次按鈕、快速選項、語言切換、商品連結、優惠券或 QR 操作，並保留分鐘級時間戳記。</td>
+<td>使用者點擊零售版 UI 元素時。</td>
+<td><span class="sourceBadge">Retail frontend</span><span class="sourceBadge">Kiosk client</span><span class="sourceBadge">Click API</span><span class="sourceBadge">源頭 DB</span></td>
+<td class="fieldList">click_id, project_id, session_id, message_id, ui_element_id, click_label, clicked_at_minute, device_id, channel, page_context</td>
+<td>event log</td>
+<td>需補源頭 DB 粒度</td>
+<td>時間戳記是否至少到分鐘，且在進 GA 彙整前能連 session/message</td>
+<td>使用者在對話前、中、後點了什麼？</td>
+<td><span class="pill">補分鐘級時間</span></td>
+</tr><tr>
+<td class="eventTd">遊戲/機台延伸事件<code class="eventCode2">game_event_recorded</code></td>
+<td>記錄 AMAZE 機台上非一般對話的延伸功能，例如小遊戲開始、完成、重試、獎勵、掃描、任務與分數。</td>
+<td>使用者進入機台遊戲模式或操作延伸功能時。</td>
+<td><span class="sourceBadge">AMAZE 機台</span><span class="sourceBadge">Kiosk runtime</span><span class="sourceBadge">Game module</span></td>
+<td class="fieldList">game_event_id, game_type, session_id, device_id, stage_id, action_type, result_state, score, reward_id, occurred_at</td>
+<td>event log + state event</td>
+<td>新事件族群</td>
+<td>機台有哪些延伸功能，以及是否能和同一個 chat session 關聯</td>
+<td>哪些非對話功能帶來互動、任務完成或後續提問？</td>
+<td><span class="pill">定義格式</span></td>
 </tr><tr class="groupRow"><td colspan="10">E. 語音、多語與多模態</td></tr><tr>
 <td class="eventTd">語音辨識完成/失敗<code class="eventCode2">stt_completed / stt_failed</code></td>
 <td>語音被轉成文字，或因噪音/語言/服務錯誤失敗。</td>
@@ -201,16 +223,16 @@
 <td>回答是否太長或太慢？</td>
 <td><span class="pill">待確認來源</span></td>
 </tr><tr>
-<td class="eventTd">語言偵測/切換<code class="eventCode2">language_detected / language_switched</code></td>
-<td>判斷使用者語言，或 session 內切換語言。</td>
-<td>訊息進來後或語言設定改變時。</td>
-<td><span class="sourceBadge">Language detector</span><span class="sourceBadge">chat backend</span></td>
-<td class="fieldList">session_id, detected_language, previous_language, confidence, message_id</td>
+<td class="eventTd">AI 語言判定/切換<code class="eventCode2">language_judged_by_ai / language_switched</code></td>
+<td>用 AI 判定使用者實際語言需求，並保留判定原因；不是把語言偵測機率直接當成最終結論。</td>
+<td>訊息進來後、語音轉文字後或語言設定改變時。</td>
+<td><span class="sourceBadge">AI language judge</span><span class="sourceBadge">chat backend</span><span class="sourceBadge">STT service</span></td>
+<td class="fieldList">session_id, judged_language, judge_reason, confidence_bucket, previous_language, message_id</td>
 <td>derived event</td>
-<td>可能部分有</td>
-<td>語言是否和訊息/session 對上</td>
-<td>外語使用比例與品質如何？</td>
-<td><span class="pill">待確認來源</span></td>
+<td>需改判定邏輯</td>
+<td>AI 語言標籤與原因是否可取代原始機率判讀</td>
+<td>使用者實際需要哪種語言體驗，品質在哪裡中斷？</td>
+<td><span class="pill">改用 AI 判定</span></td>
 </tr><tr class="groupRow"><td colspan="10">F. 意圖、任務與 ROI</td></tr><tr>
 <td class="eventTd">意圖分類<code class="eventCode2">intent_classified</code></td>
 <td>把問題分類成交通停車、營業時間、設施位置、購物、活動等任務。</td>
@@ -245,6 +267,28 @@
 <td>互動價值是否大於成本？</td>
 <td><span class="pill">待確認來源</span></td>
 </tr><tr>
+<td class="eventTd">後台測試 Resource<code class="eventCode2">backend_test_resource_recorded</code></td>
+<td>將後台測試、QA 驗證、prompt test、KB test 視為新的 resource 類型，不混入正式使用者流量。</td>
+<td>管理端測試、QA replay、staging check、prompt/KB 測試或後台驗證呼叫時。</td>
+<td><span class="sourceBadge">Admin backend</span><span class="sourceBadge">QA console</span><span class="sourceBadge">Test runner</span><span class="sourceBadge">Audit log</span></td>
+<td class="fieldList">resource_id, test_type, environment, project_id, character_id, actor_role, scenario_id, started_at, result_status, linked_response_id</td>
+<td>resource record + audit event</td>
+<td>新 resource</td>
+<td>測試紀錄是否能和正式流量分開，但仍可追溯 project/role/prompt/KB/response</td>
+<td>哪些使用是真實客戶行為，哪些是後台或管理端測試？</td>
+<td><span class="pill">新增 resource</span></td>
+</tr><tr>
+<td class="eventTd">點擊與對話關聯<code class="eventCode2">click_conversation_linked</code></td>
+<td>把 UI 點擊連到最接近的 conversation、message、response 與 intent，分析對話前後的行為。</td>
+<td>click、message、session 都寫入後，由即時或批次程序建立關聯。</td>
+<td><span class="sourceBadge">源頭 DB</span><span class="sourceBadge">Analytics ETL</span><span class="sourceBadge">Session linker</span></td>
+<td class="fieldList">click_id, session_id, message_id, response_id, intent, clicked_at_minute, relation_window_sec, relation_type</td>
+<td>join table / derived event</td>
+<td>建議新增關聯表</td>
+<td>click 與 conversation 是否有穩定 ID 與足夠精細時間戳記</td>
+<td>哪些點擊引發提問？哪些回答帶來後續點擊？</td>
+<td><span class="pill">關聯事件</span></td>
+</tr><tr>
 <td class="eventTd">內容維護<code class="eventCode2">kb_record_updated / prompt_published</code></td>
 <td>管理者新增/修改 KB、發布 prompt、調整角色設定或測試腳本。</td>
 <td>每次後台內容或設定變更。</td>
@@ -258,7 +302,7 @@
 </tr></tbody></table></div></section>
 
 <section class="section"><div class="head"><h2>2. 這些數據源要產生什麼資訊：報表欄位與定義</h2><div class="note">每張報表都要能追溯到 event / field / formula，避免只有漂亮圖表。</div></div><div class="card"><table><thead><tr><th>報表</th><th>計算頻率 / 維度</th><th>欄位</th><th>定義 / 公式</th><th>建議視覺</th></tr></thead><tbody>
-<tr><td><b>使用行為總覽</b></td><td>日 / 週 / 月；專案 × 入口</td><td>互動數、session 數、有效問題數、平均回合、活躍裝置、尖峰時段</td><td>有效問題數 = user message 扣除 greeting / idle / system trigger；平均回合 = user+assistant message pair。</td><td>KPI + 趨勢線 + 入口堆疊圖</td></tr><tr><td><b>需求 / 意圖分析</b></td><td>日 / 週；專案 × intent</td><td>意圖、問題數、佔比、成長率、代表性問題、關聯 KB、入口來源</td><td>同一 session 內相同 intent 可去重或保留，需標明算法；佔比 = intent 問題數 / 有效問題數。</td><td>Treemap / Pareto bar / 代表問題表</td></tr><tr><td><b>知識覆蓋與缺口</b></td><td>日 / 週；intent × KB</td><td>KB hit rate、miss rate、低分檢索率、未覆蓋問題 Top N、建議補 KB 主題</td><td>KB hit = retrieved score >= threshold 且 used_in_answer=true；miss = no result 或 fallback。</td><td>Coverage matrix + gap queue</td></tr><tr><td><b>回答品質</b></td><td>週 / 月；角色 × intent</td><td>通過率、部分通過率、錯誤率、低信心率、人工標註數、錯誤類型</td><td>通過率 = reviewed pass / reviewed total；低信心可用 similarity 或 LLM judge confidence。</td><td>品質漏斗 + issue stacked bar</td></tr><tr><td><b>入口 / 載具表現</b></td><td>日 / 週；channel × device</td><td>入口互動量、裝置在線率、最後心跳、啟動率、平均停留、操作中斷率</td><td>裝置在線率 = 有心跳裝置 / 已註冊裝置；中斷 = session 無完成/超時。</td><td>入口分布 + device health table</td></tr><tr><td><b>語音與多語體驗</b></td><td>週 / 月；language × channel</td><td>語言分布、STT 成功率、TTS 成功率、語音重試率、外語回答品質</td><td>STT 成功率 = successful transcript / voice input attempts；多語品質需抽樣或 AI judge。</td><td>語言 heatmap + voice reliability cards</td></tr><tr><td><b>ROI / 服務價值估算</b></td><td>月；專案 × intent</td><td>可替代人工問題數、估算節省分鐘、估算人工成本、AI 成本、淨效益、改善後增益</td><td>淨效益 = 節省人工成本 - LLM/STT/TTS 成本；需可調整假設參數。</td><td>ROI waterfall + assumption panel</td></tr>
+<tr><td><b>使用行為總覽</b></td><td>日 / 週 / 月；專案 × 入口</td><td>互動數、session 數、有效問題數、平均回合、活躍裝置、尖峰時段</td><td>有效問題數 = user message 扣除 greeting / idle / system trigger；平均回合 = user+assistant message pair。</td><td>KPI + 趨勢線 + 入口堆疊圖</td></tr><tr><td><b>需求 / 意圖分析</b></td><td>日 / 週；專案 × intent</td><td>意圖、問題數、佔比、成長率、代表性問題、關聯 KB、入口來源</td><td>同一 session 內相同 intent 可去重或保留，需標明算法；佔比 = intent 問題數 / 有效問題數。</td><td>Treemap / Pareto bar / 代表問題表</td></tr><tr><td><b>知識覆蓋與缺口</b></td><td>日 / 週；intent × KB</td><td>KB hit rate、miss rate、低分檢索率、未覆蓋問題 Top N、建議補 KB 主題</td><td>KB hit = retrieved score >= threshold 且 used_in_answer=true；miss = no result 或 fallback。</td><td>Coverage matrix + gap queue</td></tr><tr><td><b>回答品質</b></td><td>週 / 月；角色 × intent</td><td>通過率、部分通過率、錯誤率、低信心率、人工標註數、錯誤類型</td><td>通過率 = reviewed pass / reviewed total；低信心可用 similarity 或 LLM judge confidence。</td><td>品質漏斗 + issue stacked bar</td></tr><tr><td><b>入口 / 載具表現</b></td><td>日 / 週；channel × device</td><td>入口互動量、裝置在線率、最後心跳、啟動率、平均停留、操作中斷率</td><td>裝置在線率 = 有心跳裝置 / 已註冊裝置；中斷 = session 無完成/超時。</td><td>入口分布 + device health table</td></tr><tr><td><b>零售點擊與對話關聯</b></td><td>分鐘 / 小時 / 日；專案 × UI 元素 × session</td><td>分鐘級點擊、click-to-message window、點擊後提問率、回答後點擊率、未關聯點擊</td><td>點擊關聯 = 在設定時間窗內連到 conversation/message/response 的 click。源頭 DB 需保留分鐘級或更細時間戳記，因 GA 匯入無法支援這個粒度。</td><td>Click timeline + conversation-link table</td></tr><tr><td><b>遊戲與機台延伸使用</b></td><td>日 / 週；專案 × 裝置 × 遊戲模組</td><td>遊戲開始、完成、獎勵、重試、掃描、分數/結果分布、後續提問</td><td>遊戲完成率 = completed game events / started game events；後續提問率 = 有 game event 且後續有 user_message_sent 的 sessions / game sessions。</td><td>機台功能採用矩陣 + game funnel</td></tr><tr><td><b>語音與多語體驗</b></td><td>週 / 月；AI 判定語言 × channel</td><td>AI 判定語言分布、STT 成功率、TTS 成功率、語音重試率、外語回答品質</td><td>語言需使用 AI 判定標籤，不把原始 detector probability 當最終語言。STT 成功率 = successful transcript / voice input attempts。</td><td>AI 語言判定 heatmap + voice reliability cards</td></tr><tr><td><b>後台測試 Resource 使用</b></td><td>日 / 週；environment × test type × project</td><td>測試次數、成功/失敗、關聯 prompt/KB/response、actor role、正式流量排除旗標</td><td>正式使用報表預設排除 backend_test_resource_recorded；只有在比較正式流量與測試流量時納入。</td><td>Backend resource table + test-result status cards</td></tr><tr><td><b>ROI / 服務價值估算</b></td><td>月；專案 × intent</td><td>可替代人工問題數、估算節省分鐘、估算人工成本、AI 成本、淨效益、改善後增益</td><td>淨效益 = 節省人工成本 - LLM/STT/TTS 成本；需可調整假設參數。</td><td>ROI waterfall + assumption panel</td></tr>
 </tbody></table></div></section>
 
 <section class="section"><div class="head"><h2>3. 可視化模板：正式 Dashboard 畫面示意</h2><div class="note">下方為可操作 UI mockup：示意資料，用來討論後台實際畫面、篩選器與資訊層級。</div></div>
@@ -295,7 +339,12 @@
 
     <div class="dashGrid">
       <div class="dashPanel"><div class="panelHead"><div><h4>回答品質漏斗</h4><p>來源：assistant_response_returned、answer_reviewed、user_feedback_submitted、answer_quality_judged。</p></div></div><div class="qualityFunnel"><div class="qStep"><span>有效問題</span><b>12,840</b></div><div class="qStep"><span>有 KB / 工具支援</span><b>10,015</b></div><div class="qStep"><span>回答可接受</span><b>8,920</b></div><div class="qStep bad"><span>需人工修正 / 補 KB</span><b>1,095</b></div></div><div class="screenNote">此漏斗可以連回單筆對話、retrieved KB、review label，讓 USER 知道問題卡在哪一層。</div></div>
-      <div class="dashPanel"><div class="panelHead"><div><h4>語言 × 入口熱區</h4><p>來源：language_detected、channel、stt_completed。觀察多語需求在哪些入口發生。</p></div></div><div class="miniHeat"><div></div><div>Kiosk</div><div>Web</div><div>Voice</div><div>API</div><div>Robot</div><div>中文</div><div class="h1">高</div><div class="h1">高</div><div class="h2">中</div><div class="h2">中</div><div class="h2">中</div><div>英文</div><div class="h2">中</div><div class="h1">高</div><div class="h3">低</div><div class="h2">中</div><div class="h3">低</div><div>日文</div><div class="h3">低</div><div class="h2">中</div><div class="h3">低</div><div class="h3">低</div><div class="h3">低</div></div></div>
+      <div class="dashPanel"><div class="panelHead"><div><h4>AI 語言判定熱區</h4><p>來源：language_judged_by_ai、channel、stt_completed。語言標籤應來自 AI 判定，不只使用 detector probability。</p></div></div><div class="miniHeat"><div></div><div>Kiosk</div><div>Web</div><div>Voice</div><div>API</div><div>Robot</div><div>中文</div><div class="h1">高</div><div class="h1">高</div><div class="h2">中</div><div class="h2">中</div><div class="h2">中</div><div>英文</div><div class="h2">中</div><div class="h1">高</div><div class="h3">低</div><div class="h2">中</div><div class="h3">低</div><div>日文</div><div class="h3">低</div><div class="h2">中</div><div class="h3">低</div><div class="h3">低</div><div class="h3">低</div></div><div class="screenNote">報表需保留 AI 判定語言、可選原因與 confidence bucket，讓 PM/RD 區分真實多語需求與語言機率雜訊。</div></div>
+    </div>
+
+    <div class="dashGrid">
+      <div class="dashPanel"><div class="panelHead"><div><h4>零售點擊 × 對話時間線</h4><p>來源：retail_click_tracked、user_message_sent、assistant_response_returned、click_conversation_linked。需要源頭 DB 分鐘級時間戳記，因 GA 匯入後無法做這種細緻關聯。</p></div></div><table class="queueTable"><thead><tr><th>分鐘</th><th>點擊事件</th><th>對話關聯</th><th>判讀</th></tr></thead><tbody><tr><td>10:14</td><td>Change Language</td><td>session_842 / msg_118</td><td>語言切換發生在英文提問前。</td></tr><tr><td>10:16</td><td>Click TalkOption</td><td>session_842 / response_209</td><td>使用者在 AI 回答後選擇快速選項。</td></tr><tr><td>10:18</td><td>Coupon QR</td><td>unlinked</td><td>需補 session ID 或更精確時間戳記。</td></tr></tbody></table></div>
+      <div class="dashPanel"><div class="panelHead"><div><h4>機台延伸與後台測試 Resource</h4><p>來源：game_event_recorded、backend_test_resource_recorded。遊戲功能與後台測試都應作為一級 resource，不混入 generic traffic。</p></div></div><div class="coverage"><div class="coverCell"><b>1,248</b><span>遊戲開始</span></div><div class="coverCell"><b class="green">62%</b><span>遊戲完成率</span></div><div class="coverCell"><b>84</b><span>後台測試</span></div><div class="coverCell"><b class="yellow">11</b><span>失敗測試</span></div></div><div class="screenNote">正式使用報表應區分真實客戶 session 與後台/管理端測試 resource，同時保留 project、character、prompt、KB 與 response 的追溯能力。</div></div>
     </div>
 
     <div class="dashGrid">
