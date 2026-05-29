@@ -1,0 +1,9 @@
+{
+  "preview_id": "2026-05-29-ai-amaze-observability-en",
+  "title": "AI AMAZE Data Source and Visualization Template - English",
+  "updated_focus": "Separate English preview based on 2026-05-22-ai-amaze-observability; does not overwrite the Chinese version.",
+  "note": "English explanation version. The previous Excel file is excluded from this version.",
+  "data_source_section": "spreadsheet-style event form/table, one row per event",
+  "visualization_section": "formal dashboard mockup with date/project/channel/language filters, KPI, trend, intent, coverage, quality, heatmap, ROI calculator, and action queue",
+  "visual_update_date": "2026-05-29"
+}
