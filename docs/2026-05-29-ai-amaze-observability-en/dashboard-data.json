@@ -1,0 +1,358 @@
+{
+  "generated_at": "2026-05-22T04:19:49.670794+00:00",
+  "month": "202605",
+  "projects": [
+    {
+      "title": "【付費】林百貨",
+      "project_id": "c0ceae15-a66c-4204-94ce-9fd4009beda5",
+      "roles": [
+        {
+          "id": "bd08450b-598e-4520-9512-2930710bd059",
+          "name": "不使用",
+          "prompt_len": 258,
+          "greeting_len": 5
+        },
+        {
+          "id": "5ca3e26c-ca21-493c-8667-9f27fc3b10b5",
+          "name": "林娃娃",
+          "prompt_len": 406,
+          "greeting_len": 32
+        }
+      ],
+      "month_interactions": 4998,
+      "source_counts": {
+        "kiosk": 2474,
+        "line": 13,
+        "web": 12,
+        "all": 2499
+      },
+      "languages": {
+        "zh": 1939,
+        "ja": 257,
+        "en": 206,
+        "ko": 55,
+        "it": 17,
+        "vi": 6,
+        "ms": 5,
+        "id": 4
+      },
+      "top_keywords": [
+        {
+          "name": "台南",
+          "value": 26644
+        },
+        {
+          "name": "問題",
+          "value": 26565
+        },
+        {
+          "name": "謝謝",
+          "value": 24171
+        },
+        {
+          "name": "專屬",
+          "value": 23736
+        },
+        {
+          "name": "人員為",
+          "value": 23689
+        },
+        {
+          "name": "回覆",
+          "value": 22262
+        },
+        {
+          "name": "稍候",
+          "value": 20764
+        },
+        {
+          "name": "客服",
+          "value": 17581
+        },
+        {
+          "name": "林百貨林",
+          "value": 15319
+        },
+        {
+          "name": "還有",
+          "value": 14674
+        }
+      ],
+      "click_total": 9752,
+      "button_clicks": [
+        {
+          "name": "Change Language",
+          "value": 2455
+        },
+        {
+          "name": "Click TalkOption",
+          "value": 1574
+        },
+        {
+          "name": "Close Talk",
+          "value": 1510
+        },
+        {
+          "name": "Close Verify Page",
+          "value": 1
+        },
+        {
+          "name": "Start Speeching",
+          "value": 3181
+        },
+        {
+          "name": "Stop Speeching",
+          "value": 1031
+        }
+      ],
+      "gender": [],
+      "device_count": 5,
+      "chat_history_30d": 20,
+      "sample_questions": [
+        "有廁所嗎",
+        "購物"
+      ],
+      "error_histories_sample": 0,
+      "has_traffic": true
+    },
+    {
+      "title": "【專案】 南門市場",
+      "project_id": "d65682c5-4829-4828-ad36-a4fd7912efde",
+      "roles": [
+        {
+          "id": "bbd32b58-4ea3-432a-897c-55fe6f35e5f6",
+          "name": "Ray",
+          "prompt_len": 68,
+          "greeting_len": 5
+        },
+        {
+          "id": "c9636195-e3c6-46cf-83db-80a0e86bbce8",
+          "name": "南南2",
+          "prompt_len": 1608,
+          "greeting_len": 5
+        },
+        {
+          "id": "ade1113e-5e08-4706-b45e-097307a7d338",
+          "name": "南南",
+          "prompt_len": 1231,
+          "greeting_len": 88
+        }
+      ],
+      "month_interactions": 588,
+      "source_counts": {
+        "kiosk": 166,
+        "web": 128,
+        "all": 294
+      },
+      "languages": {
+        "zh": 239,
+        "ja": 20,
+        "en": 14,
+        "ko": 9,
+        "ca": 4,
+        "it": 4,
+        "fr": 2,
+        "id": 1
+      },
+      "top_keywords": [
+        {
+          "name": "市場",
+          "value": 3169
+        },
+        {
+          "name": "南門",
+          "value": 2629
+        },
+        {
+          "name": "攤位",
+          "value": 2054
+        },
+        {
+          "name": "隨時",
+          "value": 1960
+        },
+        {
+          "name": "祝您",
+          "value": 1714
+        },
+        {
+          "name": "有個",
+          "value": 1678
+        },
+        {
+          "name": "這裡",
+          "value": 1502
+        },
+        {
+          "name": "問題",
+          "value": 1326
+        },
+        {
+          "name": "告訴",
+          "value": 1009
+        },
+        {
+          "name": "愉快",
+          "value": 992
+        }
+      ],
+      "click_total": 1633,
+      "button_clicks": [
+        {
+          "name": "Avatar Pose",
+          "value": 7
+        },
+        {
+          "name": "Change Language",
+          "value": 847
+        },
+        {
+          "name": "Change Language Dropdown",
+          "value": 69
+        },
+        {
+          "name": "Click TalkOption",
+          "value": 54
+        },
+        {
+          "name": "Close MakeupPhoto",
+          "value": 17
+        },
+        {
+          "name": "Close Talk",
+          "value": 103
+        },
+        {
+          "name": "Close Web Translate QRCode Hint",
+          "value": 2
+        },
+        {
+          "name": "Dropdown Change Language",
+          "value": 48
+        }
+      ],
+      "gender": [],
+      "device_count": 14,
+      "chat_history_30d": 16,
+      "sample_questions": [
+        "南門市場在哪",
+        "停車折抵",
+        "營業時間"
+      ],
+      "error_histories_sample": 1,
+      "has_traffic": true
+    },
+    {
+      "title": "工研院x壽山動物園",
+      "project_id": "e0bc036b-52cd-4b64-b9af-57879de91a3d",
+      "roles": [
+        {
+          "id": "cefba979-fb80-4da7-b21e-f36de846d9b4",
+          "name": "壽山動物園導覽員",
+          "prompt_len": 1716,
+          "greeting_len": 23
+        }
+      ],
+      "month_interactions": 380,
+      "source_counts": {
+        "kiosk": 190,
+        "all": 190
+      },
+      "languages": {
+        "zh": 176,
+        "en": 9,
+        "ja": 3,
+        "ca": 1,
+        "it": 1
+      },
+      "top_keywords": [
+        {
+          "name": "看板",
+          "value": 2418
+        },
+        {
+          "name": "活動",
+          "value": 2206
+        },
+        {
+          "name": "右側",
+          "value": 1913
+        },
+        {
+          "name": "入口",
+          "value": 1905
+        },
+        {
+          "name": "園區",
+          "value": 1338
+        },
+        {
+          "name": "歡迎",
+          "value": 1103
+        },
+        {
+          "name": "建議",
+          "value": 1021
+        },
+        {
+          "name": "今日",
+          "value": 883
+        },
+        {
+          "name": "最新",
+          "value": 863
+        },
+        {
+          "name": "場次",
+          "value": 833
+        }
+      ],
+      "click_total": 693,
+      "button_clicks": [
+        {
+          "name": "Change Language Dropdown",
+          "value": 60
+        },
+        {
+          "name": "Click TalkOption",
+          "value": 110
+        },
+        {
+          "name": "Click to Close Sleep Mode",
+          "value": 116
+        },
+        {
+          "name": "Close Talk",
+          "value": 105
+        },
+        {
+          "name": "Dropdown Change Language",
+          "value": 31
+        },
+        {
+          "name": "Start Speeching",
+          "value": 188
+        },
+        {
+          "name": "Stop Speeching",
+          "value": 83
+        }
+      ],
+      "gender": [
+        {
+          "name": "女性",
+          "value": 47
+        },
+        {
+          "name": "男性",
+          "value": 84
+        }
+      ],
+      "device_count": 6,
+      "chat_history_30d": 0,
+      "sample_questions": [],
+      "error_histories_sample": 0,
+      "has_traffic": true
+    }
+  ]
+}
