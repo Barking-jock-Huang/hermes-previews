@@ -1,6 +1,33 @@
 {
   "generated_at": "2026-05-22T04:19:49.670794+00:00",
   "month": "202605",
+  "observability_requirements": [
+    {
+      "key": "game_event_recorded",
+      "label": "Game and machine extension event format",
+      "requirement": "AMAZE machines can expose many extended functions beyond chat, so game starts, completions, retries, rewards, scans, scores, missions, and follow-up questions should be recorded as structured events."
+    },
+    {
+      "key": "retail_click_tracked",
+      "label": "Retail click timestamps",
+      "requirement": "Retail click data should keep source-DB timestamps at minute precision or better because GA-imported data cannot support detailed behavioral inspection."
+    },
+    {
+      "key": "click_conversation_linked",
+      "label": "Click-to-conversation linkage",
+      "requirement": "Clicks should be joinable to session, message, response, and intent records so teams can analyze how UI actions relate to questions and AI answers."
+    },
+    {
+      "key": "backend_test_resource_recorded",
+      "label": "Backend test as resource",
+      "requirement": "Backend/admin/QA tests should be treated as a separate resource category so test traffic can be observed without mixing it into live customer behavior."
+    },
+    {
+      "key": "language_judged_by_ai",
+      "label": "AI language judgment",
+      "requirement": "Language reporting should use AI judgment labels and optional reasons instead of treating raw detector probability as the final language."
+    }
+  ],
   "projects": [
     {
       "title": "【付費】林百貨",
