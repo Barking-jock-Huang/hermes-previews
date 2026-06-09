@@ -1,0 +1,15 @@
+{
+  "preview_id": "2026-06-09-ai-amaze-observability-console",
+  "title": "AI AMAZE 使用觀測 Console",
+  "source_preview": "2026-05-22-ai-amaze-observability",
+  "intent": "Create a new non-overwriting page that turns the existing AI AMAZE observability specification into a product-like dashboard console.",
+  "data_file": "dashboard-data.json",
+  "sections": [
+    "Executive View",
+    "Data Sources",
+    "Report Fields",
+    "Visual Templates",
+    "Action Queue"
+  ],
+  "visual_update_date": "2026-06-09"
+}

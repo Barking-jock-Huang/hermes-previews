@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234b2cff'/%3E%3Ctext x='32' y='39' font-size='24' text-anchor='middle' fill='white' font-family='Arial,sans-serif' font-weight='700'%3EAI%3C/text%3E%3C/svg%3E">
+<title>AI AMAZE 使用觀測 Console</title>
+<style>
+:root{
+  --bg:#f7f6fb;
+  --panel:#fff;
+  --soft:#fbf9ff;
+  --line:#e5deee;
+  --line2:#d7cde6;
+  --text:#272236;
+  --muted:#70677f;
+  --brand:#4b2cff;
+  --brand2:#6c55ff;
+  --green:#1f9d66;
+  --blue:#315eea;
+  --orange:#dc7b2a;
+  --red:#d34a5e;
+  --shadow:0 18px 42px rgba(60,42,130,.08);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;color:var(--text);font-family:var(--font);font-size:14px;background:linear-gradient(135deg,#f7f6fb 0%,#f7f6fb 64%,#eee9ff 64%,#eee9ff 100%) fixed}
+.shell{min-height:100vh;display:grid;grid-template-columns:232px minmax(0,1fr)}
+.sidebar{position:sticky;top:0;height:100vh;background:#fff;border-right:1px solid var(--line);padding:26px 18px;display:flex;flex-direction:column;gap:24px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;color:var(--brand);letter-spacing:.06em}
+.mark{width:34px;height:34px;border-radius:10px;background:var(--brand);color:#fff;display:grid;place-items:center;box-shadow:0 10px 20px rgba(75,44,255,.23)}
+.nav{display:grid;gap:7px}
+.nav a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:8px;text-decoration:none;color:#6b6278;font-weight:800}
+.nav a.active{background:#eee8ff;color:var(--brand)}
+.nav span{width:20px;text-align:center}
+.sideNote{margin-top:auto;border:1px solid var(--line);background:#fbf9ff;border-radius:8px;padding:12px;color:var(--muted);font-size:12px;line-height:1.55}
+.main{min-width:0}
+.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 28px;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.crumb{font-size:13px;color:var(--muted);font-weight:800}
+.crumb b{color:var(--brand)}
+.topTools{display:flex;gap:10px;align-items:center}
+.search,.chip{height:38px;border:1px solid var(--line2);border-radius:7px;background:#fff;display:flex;align-items:center}
+.search{width:280px;padding:0 12px;color:#8a8099}
+.chip{gap:8px;padding:0 12px;font-weight:900;color:#453a58}
+.avatar{width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:11px}
+.wrap{max-width:1560px;margin:0 auto;padding:22px 28px 64px}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px}
+.heroPanel,.panel,.metric,.widget,.tableWrap,.queueItem{background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow)}
+.heroPanel{min-height:390px;padding:18px;display:grid;grid-template-rows:auto 1fr;gap:14px}
+.dashHead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.eyebrow{display:inline-flex;padding:6px 10px;border-radius:999px;background:#eee8ff;color:var(--brand);border:1px solid #dcd2ff;font-size:12px;font-weight:900}
+h1{font-size:31px;line-height:1.18;margin:12px 0 8px;color:#221936;letter-spacing:0}
+p{margin:0;color:var(--muted);line-height:1.65}
+.filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.filter{display:grid;gap:5px}
+.filter label{font-size:11px;color:#796f89;font-weight:900}
+select,.filter input{height:34px;border:1px solid var(--line2);border-radius:6px;background:#fff;padding:0 9px;color:#332944;min-width:122px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.tab{border:1px solid var(--line);border-radius:7px;background:#fff;color:#635a72;padding:8px 11px;font-weight:900;cursor:pointer}
+.tab.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.consoleGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.metric{padding:14px;min-height:100px}
+.metric .label{font-size:12px;color:var(--muted);font-weight:900}
+.metric .value{font-size:28px;font-weight:950;margin:6px 0;color:#211834}
+.delta{font-size:12px;font-weight:900;color:var(--green)}
+.delta.warn{color:var(--orange)}
+.below{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-top:12px}
+.widget{padding:14px}
+.widgetHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+h2,h3{margin:0;color:#241b35}
+h2{font-size:21px}
+h3{font-size:16px}
+.sourceChip{display:inline-flex;align-items:center;gap:5px;border:1px solid #dbd2ee;background:#fbf9ff;color:#5948a9;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;white-space:nowrap}
+.chart{height:210px;border:1px solid var(--line);border-radius:8px;background:linear-gradient(180deg,#fbf9ff,#fff);position:relative;overflow:hidden}
+.chart svg{width:100%;height:100%}
+.axis{position:absolute;left:14px;right:14px;bottom:9px;display:flex;justify-content:space-between;color:#8b819a;font-size:11px}
+.bars{display:grid;gap:11px}
+.barRow{display:grid;grid-template-columns:116px minmax(80px,1fr) 56px;gap:10px;align-items:center;font-size:12px;color:#554a65}
+.bar{height:10px;border-radius:999px;background:#eee8ff;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--brand),#9b88ff)}
+.rightRail{display:grid;gap:12px}
+.projectCard{padding:16px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow)}
+.projectCard h2{font-size:18px;margin-bottom:6px}
+.miniStats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.mini{border:1px solid var(--line);border-radius:8px;background:#fbf9ff;padding:10px}
+.mini b{display:block;font-size:20px;color:var(--brand)}
+.coverageMap{display:grid;gap:8px;margin-top:10px}
+.cover{display:grid;grid-template-columns:94px 1fr 44px;gap:9px;align-items:center;font-size:12px}
+.cover .bar i{background:var(--green)}
+.section{margin-top:16px}
+.sectionTop{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 10px}
+.panel{padding:16px}
+.dataFlow{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.flowNode{border:1px solid var(--line);background:#fbf9ff;border-radius:8px;padding:12px;min-height:118px}
+.flowNode b{display:block;color:#2f2540;margin-bottom:6px}
+.flowNode span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+.flowNode strong{display:inline-block;margin-top:9px;color:var(--brand);font-size:12px}
+.tableWrap{overflow:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;min-width:980px}
+th,td{border-bottom:1px solid var(--line);padding:11px 12px;text-align:left;vertical-align:top}
+th{background:#f2edff;color:#56446f;font-size:12px;font-weight:950;white-space:nowrap}
+td{color:#463b55;font-size:13px;line-height:1.45}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#4b2cff;background:#f3efff;border:1px solid #ddd4ff;border-radius:5px;padding:2px 5px}
+.status{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900;border:1px solid var(--line)}
+.ok{color:var(--green);background:#effaf5}
+.partial{color:var(--orange);background:#fff7ed}
+.new{color:var(--brand);background:#f2efff}
+.templateGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.template{border:1px solid var(--line);border-radius:8px;background:#fff;padding:14px;min-height:188px}
+.template h3{margin-bottom:8px}
+.mock{height:78px;border:1px solid var(--line);border-radius:7px;background:repeating-linear-gradient(90deg,#eee8ff 0 16px,#fff 16px 28px);margin:10px 0}
+.mock.funnel{background:linear-gradient(90deg,#4b2cff 0 42%,#8b75ff 42% 68%,#c8bdff 68% 85%,#ffd2d9 85% 100%)}
+.mock.heat{background:linear-gradient(135deg,#fff,#eee8ff 35%,#c9bdff 70%,#4b2cff)}
+.mock.cards{background:linear-gradient(90deg,#fff 0 31%,#eee8ff 31% 33%,#fff 33% 64%,#eee8ff 64% 66%,#fff 66%)}
+.queueGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.queueItem{padding:14px}
+.queueItem b{display:block;font-size:15px;margin-bottom:7px;color:#241b35}
+.priority{display:inline-flex;margin-bottom:10px;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:950}
+.p1{background:#fff0f2;color:var(--red)}
+.p2{background:#fff7ea;color:var(--orange)}
+.p3{background:#eff8ff;color:var(--blue)}
+.hidden{display:none}
+@media(max-width:1200px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .workspace,.below{grid-template-columns:1fr}
+  .consoleGrid{grid-template-columns:repeat(2,1fr)}
+  .dataFlow,.templateGrid,.queueGrid{grid-template-columns:repeat(2,1fr)}
+  .topbar{position:static}
+}
+@media(max-width:760px){
+  .wrap{padding:16px}
+  .topbar{padding:0 16px}
+  .search{display:none}
+  .consoleGrid,.dataFlow,.templateGrid,.queueGrid{grid-template-columns:1fr}
+  .dashHead,.sectionTop{display:block}
+  .filters{justify-content:flex-start;margin-top:12px}
+  h1{font-size:26px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="mark">AI</span><span>AI AMAZE</span></div>
+    <nav class="nav">
+      <a class="active"><span>⌁</span>使用觀測</a>
+      <a><span>▦</span>專案管理</a>
+      <a><span>◌</span>角色設定</a>
+      <a><span>▤</span>知識庫</a>
+      <a><span>◎</span>分析報表</a>
+      <a><span>⚙</span>系統設定</a>
+    </nav>
+    <div class="sideNote">新版 preview：延續 2026-05-22 observability 內容，改成可操作的 console 版型，不覆蓋原頁。</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb"><b>AI AMAZE</b> / 分析報表 / 使用觀測 Console</div>
+      <div class="topTools">
+        <div class="search">搜尋專案、來源、報表欄位</div>
+        <div class="chip"><span class="avatar">J</span>Admin</div>
+      </div>
+    </header>
+    <div class="wrap">
+      <section class="workspace">
+        <div class="heroPanel">
+          <div>
+            <div class="dashHead">
+              <div>
+                <span class="eyebrow">AI AMAZE · Observability Console</span>
+                <h1>把使用行為、知識命中、語音入口與報表欄位放在同一個可追溯工作台</h1>
+                <p>這頁不是重新寫功能介紹，而是把原本的數據源與可視化模板整理成後台第一屏：先看到使用健康度，再往下追到事件來源、欄位公式、視覺模板與待處理項目。</p>
+              </div>
+              <div class="filters">
+                <div class="filter"><label>專案</label><select id="projectSelect"></select></div>
+                <div class="filter"><label>期間</label><input value="2026-05"></div>
+                <div class="filter"><label>入口</label><select><option>全部入口</option><option>Kiosk</option><option>Web</option><option>Line</option></select></div>
+              </div>
+            </div>
+            <div class="tabs" id="tabs">
+              <button class="tab active" data-target="executive">Executive View</button>
+              <button class="tab" data-target="sources">Data Sources</button>
+              <button class="tab" data-target="fields">Report Fields</button>
+              <button class="tab" data-target="templates">Visual Templates</button>
+              <button class="tab" data-target="queue">Action Queue</button>
+            </div>
+          </div>
+          <div id="executive" class="tabPanel">
+            <div class="consoleGrid">
+              <div class="metric"><div class="label">本月互動量</div><div class="value" id="mInteractions">--</div><div class="delta" id="mInteractionsDelta">source: month_interactions</div></div>
+              <div class="metric"><div class="label">入口事件</div><div class="value" id="mSources">--</div><div class="delta">source_counts.all</div></div>
+              <div class="metric"><div class="label">語言數</div><div class="value" id="mLanguages">--</div><div class="delta">languages distinct</div></div>
+              <div class="metric"><div class="label">裝置數</div><div class="value" id="mDevices">--</div><div class="delta warn">device_count</div></div>
+            </div>
+            <div class="below">
+              <div class="widget">
+                <div class="widgetHead"><div><h3>使用趨勢模板</h3><p>以日週月維度看對話與入口量，並保留資料來源標籤。</p></div><span class="sourceChip">conversation_started</span></div>
+                <div class="chart">
+                  <svg viewBox="0 0 640 210" preserveAspectRatio="none">
+                    <path d="M0 172 C80 142 112 158 176 120 C244 80 292 106 354 70 C430 26 468 72 528 48 C584 24 610 44 640 30" fill="none" stroke="#4b2cff" stroke-width="4"/>
+                    <path d="M0 178 C90 154 126 170 190 132 C248 96 300 124 360 92 C428 58 474 94 536 72 C592 52 614 68 640 55 L640 210 L0 210Z" fill="rgba(75,44,255,.10)"/>
+                  </svg>
+                  <div class="axis"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span></div>
+                </div>
+              </div>
+              <div class="widget">
+                <div class="widgetHead"><div><h3>入口分佈</h3><p>比較 kiosk、web、line 等入口貢獻。</p></div><span class="sourceChip">source_counts</span></div>
+                <div class="bars" id="sourceBars"></div>
+              </div>
+            </div>
+          </div>
+          <div id="sources" class="tabPanel hidden"></div>
+          <div id="fields" class="tabPanel hidden"></div>
+          <div id="templates" class="tabPanel hidden"></div>
+          <div id="queue" class="tabPanel hidden"></div>
+        </div>
+        <aside class="rightRail">
+          <div class="projectCard">
+            <h2 id="projectTitle">--</h2>
+            <p id="projectMeta">讀取 sample data 中...</p>
+            <div class="miniStats">
+              <div class="mini"><b id="roleCount">--</b><span>角色</span></div>
+              <div class="mini"><b id="clickTotal">--</b><span>點擊事件</span></div>
+            </div>
+          </div>
+          <div class="projectCard">
+            <h2>資料覆蓋地圖</h2>
+            <p>用目前 JSON 可取得欄位對照 observability 事件表，先標出能立即做報表與需補 trace 的位置。</p>
+            <div class="coverageMap">
+              <div class="cover"><span>對話/入口</span><div class="bar"><i style="width:82%"></i></div><b>82%</b></div>
+              <div class="cover"><span>語言/裝置</span><div class="bar"><i style="width:70%"></i></div><b>70%</b></div>
+              <div class="cover"><span>KB/RAG</span><div class="bar"><i style="width:28%"></i></div><b>28%</b></div>
+              <div class="cover"><span>品質回饋</span><div class="bar"><i style="width:22%"></i></div><b>22%</b></div>
+            </div>
+          </div>
+          <div class="projectCard">
+            <h2>欄位追溯</h2>
+            <p>每個 widget 都應回到事件表與公式欄位，避免 dashboard 只剩漂亮圖表。</p>
+            <div class="miniStats">
+              <div class="mini"><b>16</b><span>核心事件</span></div>
+              <div class="mini"><b>7</b><span>報表類型</span></div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section" id="sourceSection">
+        <div class="sectionTop"><h2>Data Sources · 事件管線</h2><p>從入口開啟到回答品質判斷，先看有哪些事件應該留下紀錄。</p></div>
+        <div class="panel dataFlow">
+          <div class="flowNode"><b>入口開啟</b><span>Web widget、Kiosk、Robot、API 被載入。</span><strong>entry_opened</strong></div>
+          <div class="flowNode"><b>對話開始</b><span>建立 session，記錄 project、channel、device。</span><strong>conversation_started</strong></div>
+          <div class="flowNode"><b>使用者訊息</b><span>文字、語音轉文字、按鈕與 quick reply。</span><strong>user_message_sent</strong></div>
+          <div class="flowNode"><b>知識檢索</b><span>查詢 KB、命中、未命中與採用片段。</span><strong>kb_search / kb_hit</strong></div>
+          <div class="flowNode"><b>AI 回覆</b><span>回答狀態、延遲、token、fallback。</span><strong>assistant_response</strong></div>
+          <div class="flowNode"><b>品質回饋</b><span>使用者評價、人工 review、AI judge。</span><strong>answer_reviewed</strong></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="sectionTop"><h2>Report Fields · 報表欄位定義</h2><p>這裡保留原頁的核心精神：每張報表都要能說明來源、欄位與公式。</p></div>
+        <div class="tableWrap">
+          <table>
+            <thead><tr><th>報表</th><th>回答的問題</th><th>主要欄位</th><th>公式 / 聚合</th><th>來源事件</th><th>狀態</th></tr></thead>
+            <tbody>
+              <tr><td>使用概況</td><td>有多少人使用？從哪個入口來？</td><td><code>session_id</code> <code>channel</code> <code>device_id</code></td><td>sessions、turns、entry-to-chat rate</td><td>entry_opened, conversation_started</td><td><span class="status ok">可先做</span></td></tr>
+              <tr><td>意圖分析</td><td>使用者主要問什麼？</td><td><code>message_id</code> <code>intent</code> <code>sub_intent</code></td><td>intent share、top questions、trend</td><td>user_message_sent, intent_classified</td><td><span class="status partial">需分類器</span></td></tr>
+              <tr><td>KB 覆蓋</td><td>哪些問題找不到知識？</td><td><code>query</code> <code>top_score</code> <code>knowledge_id</code></td><td>hit rate、miss reason、low score queue</td><td>kb_search_started, kb_hit, kb_miss</td><td><span class="status new">需補 trace</span></td></tr>
+              <tr><td>回答品質</td><td>哪些回答需要檢查或修正？</td><td><code>response_id</code> <code>quality_score</code> <code>issue_tags</code></td><td>bad answer rate、review queue</td><td>answer_reviewed, answer_quality_judged</td><td><span class="status new">需補流程</span></td></tr>
+              <tr><td>語音體驗</td><td>語音入口是否順暢？</td><td><code>confidence</code> <code>latency_ms</code> <code>failure_reason</code></td><td>STT fail rate、TTS interruption rate</td><td>stt_completed, tts_interrupted</td><td><span class="status partial">部分可接</span></td></tr>
+              <tr><td>ROI / 服務價值</td><td>AI 分擔多少服務量？</td><td><code>service_request</code> <code>completed_flag</code></td><td>estimated saved minutes、deflection rate</td><td>intent_classified, conversation_closed</td><td><span class="status partial">需假設</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="sectionTop"><h2>Visual Templates · 可視化模板</h2><p>把原頁的圖表示意拆成可交付的 widget catalog。</p></div>
+        <div class="templateGrid">
+          <div class="template"><h3>KPI Cards</h3><p>本月互動、入口量、語言數、裝置數與品質警示。</p><div class="mock cards"></div><span class="sourceChip">conversation + source_counts</span></div>
+          <div class="template"><h3>Intent Bars</h3><p>依意圖分類排序，找出高頻問題與服務需求。</p><div class="mock"></div><span class="sourceChip">intent_classified</span></div>
+          <div class="template"><h3>Quality Funnel</h3><p>從問題、檢索、回答、回饋一路看流失與錯誤。</p><div class="mock funnel"></div><span class="sourceChip">kb_hit + answer_reviewed</span></div>
+          <div class="template"><h3>Language Heatmap</h3><p>比較不同語言、入口與時段的使用密度。</p><div class="mock heat"></div><span class="sourceChip">language_detected</span></div>
+          <div class="template"><h3>KB Gap Queue</h3><p>把未命中、高風險與低信心回答排成可處理清單。</p><div class="mock cards"></div><span class="sourceChip">kb_miss + quality_judged</span></div>
+          <div class="template"><h3>ROI Estimator</h3><p>用意圖、完成率與平均處理時間估算服務價值。</p><div class="mock funnel"></div><span class="sourceChip">intent + conversation_closed</span></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="sectionTop"><h2>Action Queue · 代表性待處理項</h2><p>dashboard 不只看數字，也要把可以行動的事排出來。</p></div>
+        <div class="queueGrid">
+          <div class="queueItem"><span class="priority p1">P1 · Trace 缺口</span><b>補 RAG hit/miss 與 used chunk</b><p>否則 KB 覆蓋率與回答依據無法被後台追溯，只能看總使用量。</p></div>
+          <div class="queueItem"><span class="priority p2">P2 · 品質標註</span><b>建立人工 review 與 AI judge 欄位</b><p>讓高風險對話能進入待處理清單，而不是人工翻完整對話紀錄。</p></div>
+          <div class="queueItem"><span class="priority p3">P3 · 入口健康</span><b>把 entry opened 與 conversation started 分開</b><p>可判斷流量下降是需求、入口、裝置離線或體驗問題。</p></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<script>
+const fmt = new Intl.NumberFormat("zh-Hant");
+const select = document.getElementById("projectSelect");
+let projects = [];
+
+function setText(id, value){ document.getElementById(id).textContent = value; }
+function sumValues(obj){ return Object.values(obj || {}).reduce((sum, value) => sum + Number(value || 0), 0); }
+
+function renderProject(project){
+  const sourceTotal = project.source_counts?.all || sumValues(project.source_counts);
+  setText("mInteractions", fmt.format(project.month_interactions || 0));
+  setText("mSources", fmt.format(sourceTotal || 0));
+  setText("mLanguages", Object.keys(project.languages || {}).length);
+  setText("mDevices", fmt.format(project.device_count || 0));
+  setText("projectTitle", project.title || "未命名專案");
+  setText("projectMeta", `${project.project_id || ""} · ${project.has_traffic ? "has traffic data" : "traffic unknown"}`);
+  setText("roleCount", project.roles?.length || 0);
+  setText("clickTotal", fmt.format(project.click_total || 0));
+
+  const bars = document.getElementById("sourceBars");
+  const entries = Object.entries(project.source_counts || {}).filter(([key]) => key !== "all");
+  const max = Math.max(1, ...entries.map(([,value]) => value));
+  bars.innerHTML = entries.map(([name,value]) => `
+    <div class="barRow">
+      <span>${name}</span>
+      <div class="bar"><i style="width:${Math.max(4, value / max * 100)}%"></i></div>
+      <b>${fmt.format(value)}</b>
+    </div>
+  `).join("") || `<p>此專案沒有 source_counts 明細。</p>`;
+}
+
+function initTabs(){
+  document.querySelectorAll(".tab").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+      document.querySelectorAll(".tabPanel").forEach(panel => panel.classList.add("hidden"));
+      const target = document.getElementById(button.dataset.target);
+      if(target) target.classList.remove("hidden");
+      const section = {
+        sources: "sourceSection",
+        fields: "sourceSection",
+        templates: "sourceSection",
+        queue: "sourceSection"
+      }[button.dataset.target];
+      if(section) document.getElementById(section).scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  });
+}
+
+fetch("dashboard-data.json")
+  .then(response => response.json())
+  .then(data => {
+    projects = data.projects || [];
+    select.innerHTML = projects.map((project, index) => `<option value="${index}">${project.title}</option>`).join("");
+    select.addEventListener("change", event => renderProject(projects[Number(event.target.value)]));
+    if(projects[0]) renderProject(projects[0]);
+  })
+  .catch(() => {
+    select.innerHTML = "<option>資料讀取失敗</option>";
+  });
+
+initTabs();
+</script>
+</body>
+</html>
