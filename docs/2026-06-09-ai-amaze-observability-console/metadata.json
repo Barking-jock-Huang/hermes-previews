@@ -1,15 +1,13 @@
 {
   "preview_id": "2026-06-09-ai-amaze-observability-console",
-  "title": "AI AMAZE 使用觀測 Console",
+  "title": "AI AMAZE 數據源與報表欄位需求說明",
   "source_preview": "2026-05-22-ai-amaze-observability",
-  "intent": "Create a new non-overwriting page that turns the existing AI AMAZE observability specification into a product-like dashboard console.",
-  "data_file": "dashboard-data.json",
+  "intent": "Create a new non-overwriting page that explains, in plain language, the required AI AMAZE data sources and the report fields those sources should produce.",
   "sections": [
-    "Executive View",
-    "Data Sources",
-    "Report Fields",
-    "Visual Templates",
-    "Action Queue"
+    "Scope",
+    "Required Data Sources",
+    "Report Fields and Definitions",
+    "Implementation Order"
   ],
   "visual_update_date": "2026-06-09"
 }
