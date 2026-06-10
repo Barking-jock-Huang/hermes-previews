@@ -112,7 +112,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#4b2
       <a><span>◎</span>分析報表</a>
       <a><span>⚙</span>系統設定</a>
     </nav>
-    <div class="sideNote">本版只整理前兩部分：需要收哪些數據源，以及這些數據源要產生哪些報表欄位與定義。暫不把重點放在模擬後台。</div>
+    <div class="sideNote">AI AMAZE 的使用觀測需要先建立可追溯的事件資料，再把事件整理成一致的報表欄位。</div>
   </aside>
 
   <main class="main">
@@ -125,13 +125,13 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#4b2
       <section class="hero">
         <div>
           <span class="eyebrow">AI AMAZE · Data Requirement</span>
-          <h1>先講清楚兩件事：要收哪些數據、收了要產生什麼報表欄位</h1>
-          <p class="lead">這頁先不討論後台畫面長什麼樣，也不急著做 dashboard。重點是把 AI AMAZE 未來要做使用觀測時，系統必須留下哪些資料，以及這些資料最後要變成哪些可讀、可算、可追溯的報表欄位。</p>
+          <h1>AI AMAZE 使用觀測需要的數據源與報表欄位</h1>
+          <p class="lead">AI AMAZE 要能判斷使用量、知識覆蓋、回答品質與服務成效，必須在使用者互動、系統處理與結果回饋的每個階段留下資料。這些資料需整理成可讀、可算、可追溯的報表欄位，讓產品、工程與客戶對同一個數字採用一致口徑。</p>
         </div>
         <div class="scope">
-          <div class="scopeBox"><b>本頁只處理</b><p><strong>1. 需要的數據源</strong><br><strong>2. 報表欄位與定義</strong></p></div>
-          <div class="scopeBox"><b>先不處理</b><p>模擬後台、圖表樣式、互動篩選器、widget 排版、Action Queue。</p></div>
-          <div class="scopeBox"><b>討論目標</b><p>讓工程、產品與客戶都能用白話確認：哪些資料現在有、哪些要補、補了可以回答什麼營運問題。</p></div>
+          <div class="scopeBox"><b>資料範圍</b><p><strong>入口、對話、訊息、知識檢索、AI 回答、回饋、語音、裝置與延伸互動</strong> 都需要留下事件紀錄。</p></div>
+          <div class="scopeBox"><b>報表產出</b><p>事件資料需轉成使用量、入口轉換率、高頻意圖、知識命中率、回答品質、完成率與服務價值等欄位。</p></div>
+          <div class="scopeBox"><b>共同口徑</b><p>每個欄位都要明確定義來源、算法與判讀方式，避免不同團隊對同一個數字有不同解讀。</p></div>
         </div>
       </section>
 
@@ -146,7 +146,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#4b2
       <section class="section">
         <div class="sectionTop">
           <h2>1. 需要的數據源</h2>
-          <p>這裡用白話定義「系統應該留下哪些記錄」。每一列都不是畫面，而是一種資料來源；之後才能判斷目前 AI AMAZE 已有、部分有、還是需要新增。</p>
+          <p>數據源是 AI AMAZE 在服務過程中必須留下的事件紀錄。每一筆事件都對應一段使用者行為或系統處理流程，用來判斷目前資料是否完整，以及後續報表能否追溯到原始來源。</p>
         </div>
         <div class="tableWrap">
           <table>
@@ -252,7 +252,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#4b2
       <section class="section">
         <div class="sectionTop">
           <h2>2. 這些數據源要產生什麼資訊：報表欄位與定義</h2>
-          <p>這一段把上面的事件轉成報表語言。重點不是畫圖，而是定義欄位、算法、用途，讓之後 dashboard 或匯出報表都能有一致口徑。</p>
+          <p>報表欄位負責把事件資料轉成可理解的營運資訊。每個欄位都需要固定的來源、計算方式與判讀方式，讓日後的分析報表、匯出資料與管理介面能使用同一套定義。</p>
         </div>
         <div class="tableWrap">
           <table>
@@ -337,7 +337,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#4b2
                 <td><code>stt_success_rate</code> <code>tts_completion_rate</code> <code>language</code> <code>confidence</code></td>
                 <td>STT 成功/失敗、TTS 完成/中斷、語言分佈與辨識信心。</td>
                 <td>stt_completed, stt_failed, tts_completed, tts_interrupted</td>
-                <td>現場環境、口音、噪音、語言支援不足，都可以從這裡被看見。</td>
+                <td>現場環境、口音、噪音、語言支援不足，都可以透過這些欄位被辨識。</td>
               </tr>
               <tr>
                 <td><b>對話完成與中斷</b></td>
@@ -362,19 +362,19 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#4b2
 
       <section class="section">
         <div class="sectionTop">
-          <h2>落地時的整理順序</h2>
-          <p>先把資料定義對齊，再談後台或 dashboard。否則畫面看起來完整，但每個數字都無法追溯。</p>
+          <h2>資料落地順序</h2>
+          <p>AI AMAZE 的觀測能力需先對齊資料定義，再建立可視化與管理介面。資料來源、欄位算法與判讀口徑清楚後，每個數字才能被查證與持續改善。</p>
         </div>
         <div class="flow">
           <div class="step"><span class="num">1</span><b>確認現有資料</b><p>逐項標記哪些事件現在已經有、在哪個系統、欄位粒度到哪裡。</p></div>
           <div class="step"><span class="num">2</span><b>補齊必要事件</b><p>優先補 entry、session、message、kb hit/miss、response、feedback 這幾類核心 trace。</p></div>
           <div class="step"><span class="num">3</span><b>定義報表口徑</b><p>同一個欄位只保留一種算法，例如使用量、命中率、完成率、品質分數。</p></div>
-          <div class="step"><span class="num">4</span><b>再做可視化</b><p>等欄位來源和公式確認後，再設計 dashboard、篩選器、圖表與待處理清單。</p></div>
+          <div class="step"><span class="num">4</span><b>建立可視化</b><p>欄位來源和公式確認後，再設計 dashboard、篩選器、圖表與待處理清單。</p></div>
         </div>
       </section>
 
       <section class="callout">
-        <p><b>一句話版本：</b>AI AMAZE 的 observability 不是先做一個漂亮後台，而是先把「使用者做了什麼、系統怎麼處理、結果好不好」留下可追溯資料，再把這些資料轉成使用量、意圖、知識覆蓋、回答品質、語音體驗、完成率與服務價值等報表欄位。</p>
+        <p><b>核心原則：</b>AI AMAZE 的使用觀測要完整記錄「使用者做了什麼、系統怎麼處理、結果好不好」，再把這些資料轉成使用量、意圖、知識覆蓋、回答品質、語音體驗、完成率與服務價值等報表欄位。</p>
       </section>
     </div>
   </main>
